@@ -12,9 +12,10 @@ type Config struct {
 	PostgresPassword string `envconfig:"POSTGRES_PASSWORD" default:"postgres"`
 	PostgresDb       string `envconfig:"POSTGRES_DB" default:"chatbot"`
 	PostgresPort     string `envconfig:"POSTGRES_PORT" default:"5432"`
-	Port             string `envconfig:"PORT" default:"8000"`
 
+	Port          string `envconfig:"PORT" default:"8000"`
 	TelegramToken string `envconfig:"TELEGRAM_TOKEN" required:"true"`
+	FrontendUrl   string `envconfig:"FRONTEND_URL" default:"http://localhost:3000"`
 }
 
 func GetConfig() (*Config, error) {

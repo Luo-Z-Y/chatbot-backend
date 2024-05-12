@@ -1,6 +1,7 @@
 package router
 
 import (
+	"backend/internal/configs"
 	"backend/internal/handler/authhandler"
 	"backend/internal/util"
 	"errors"
@@ -24,7 +25,7 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 	return nil
 }
 
-func Setup() *echo.Echo {
+func Setup(cfg *configs.Config) *echo.Echo {
 	e := echo.New()
 	e.Validator = &CustomValidator{validator: validator.New()}
 
@@ -32,7 +33,7 @@ func Setup() *echo.Echo {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"http://localhost:3000"},
+		AllowOrigins: []string{cfg.FrontendUrl},
 		AllowMethods: []string{http.MethodGet, http.MethodPut, http.MethodPost, http.MethodDelete},
 	}))
 
