@@ -17,7 +17,7 @@ func main() {
 	}
 	database.SetupDb(cfg)
 
-	e := router.Setup()
+	e := router.Setup(cfg)
 
 	go telegram.StartChatbot(cfg.TelegramToken)
 
