@@ -46,7 +46,7 @@ func Setup(cfg *configs.Config) *echo.Echo {
 		NewClaimsFunc: func(c echo.Context) jwt.Claims {
 			return new(util.JwtCustomClaims)
 		},
-		SigningKey: []byte("secret"),
+		SigningKey: []byte(cfg.JwtSecret),
 	}
 	g.Use(echojwt.WithConfig(config))
 

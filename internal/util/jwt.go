@@ -1,6 +1,7 @@
 package util
 
 import (
+	"backend/internal/configs"
 	"backend/internal/dataaccess/auth"
 	"backend/internal/database"
 	"backend/internal/model"
@@ -17,7 +18,7 @@ type JwtCustomClaims struct {
 func GetJwtToken(ID uint) (string, error) {
 	claims := &JwtCustomClaims{ID: strconv.Itoa(int(ID)), RegisteredClaims: jwt.RegisteredClaims{ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 72))}}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte("secret"))
+	return token.SignedString([]byte(configs.GetJwtSecret()))
 }
 
 func GetUser(jwt *jwt.Token) (*model.User, error) {
