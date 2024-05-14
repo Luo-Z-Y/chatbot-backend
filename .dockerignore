@@ -1,6 +1,5 @@
 tmp
 .idea
-routes.json
 
 # Dependencies
 vendor/
