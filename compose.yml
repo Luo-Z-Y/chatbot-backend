@@ -23,8 +23,8 @@ services:
     image: postgres:16.1-alpine
     env_file:
       - .env
-    expose:
-      - "${PGPORT}"
+    ports:
+      - "${TEST_POSTGRES_PORT}:${PGPORT}"
 
 volumes:
   db:
