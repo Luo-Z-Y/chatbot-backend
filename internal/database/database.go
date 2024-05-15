@@ -3,7 +3,7 @@ package database
 import (
 	"backend/internal/configs"
 	"backend/internal/model"
-	"fmt"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -11,10 +11,13 @@ import (
 var globalDb *gorm.DB
 
 func SetupDb(cfg *configs.Config) {
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Shanghai",
-		cfg.PostgresHost, cfg.PostgresUser, cfg.PostgresPassword, cfg.PostgresDb, cfg.PostgresPort)
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{TranslateError: true})
+	dsn, err := BuildDsn(cfg)
+	if err != nil {
+		panic("Error building the DSN.")
+	}
 
+	gormCfg := GetConfig()
+	db, err := gorm.Open(postgres.Open(dsn), gormCfg)
 	if err != nil {
 		panic("Error opening the database.")
 	}
@@ -26,5 +29,5 @@ func SetupDb(cfg *configs.Config) {
 
 // Assumption: SetupDb is called before this function
 func GetDb() *gorm.DB {
-	return globalDb
+	return globalDb.Session(&gorm.Session{NewDB: true})
 }
