@@ -9,9 +9,9 @@ import (
 type By string
 
 const (
-	Guest By = "guest"
-	Bot   By = "bot"
-	Staff By = "staff"
+	ByGuest By = "guest"
+	ByBot   By = "bot"
+	ByStaff By = "staff"
 )
 
 type Message struct {
@@ -23,7 +23,7 @@ type Message struct {
 	HotelStaffId      uint
 	HotelStaff        User
 	RequestQueryId    uint
-	RequestQuery      User
+	RequestQuery      RequestQuery
 }
 
 func (m *Message) Create(db *gorm.DB) error {

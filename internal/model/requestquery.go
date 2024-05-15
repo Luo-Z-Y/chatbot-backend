@@ -9,23 +9,23 @@ type Status string
 type Type string
 
 const (
-	Ongoing   Status = "ongoing"
-	Autoreply Status = "autoreply"
-	Pending   Status = "pending"
-	Closed    Status = "closed"
-	Reviewed  Status = "reviewed"
+	StatusOngoing   Status = "ongoing"
+	StatusAutoreply Status = "autoreply"
+	StatusPending   Status = "pending"
+	StatusClosed    Status = "closed"
+	StatusReviewed  Status = "reviewed"
 )
 
 const (
-	Unknown Type = "unknown"
-	Query   Type = "query"
-	Request Type = "request"
+	TypeUnknown Type = "unknown"
+	TypeQuery   Type = "query"
+	TypeRequest Type = "request"
 )
 
 type RequestQuery struct {
 	gorm.Model
-	Status    Status `gorm:"type:enum('ongoing','autoreply','pending','closed','reviewed')"`
-	Type      Type   `gorm:"type:enum('unknown', query','request')"`
+	Status    Status
+	Type      Type
 	BookingId *uint
 	Booking   *Booking
 	ChatId    uint
@@ -48,7 +48,7 @@ func (r *RequestQuery) Delete(db *gorm.DB) error {
 }
 
 func (r *RequestQuery) BeforeSave(tx *gorm.DB) (err error) {
-	if r.Type == Request && r.BookingId == nil {
+	if r.Type == TypeRequest && r.BookingId == nil {
 		return ErrRequestHasNilBookingId
 	}
 	return

@@ -22,8 +22,8 @@ func SetupDb(cfg *configs.PostgresConfig) {
 		panic("Error opening the database.")
 	}
 
-	_ = db.AutoMigrate(&model.User{})
 	_ = db.AutoMigrate(&model.Booking{})
+	_ = db.AutoMigrate(&model.User{})
 	_ = db.AutoMigrate(&model.Chat{})
 	_ = db.AutoMigrate(&model.RequestQuery{})
 	_ = db.AutoMigrate(&model.Message{})
