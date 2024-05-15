@@ -11,6 +11,7 @@ type User struct {
 	gorm.Model
 	Username          string `gorm:"unique"`
 	EncryptedPassword string
+	Messages          []Message `gorm:"foreignKey:HotelStaffId"`
 }
 
 func (u *User) ToView() *viewmodel.UserView {
