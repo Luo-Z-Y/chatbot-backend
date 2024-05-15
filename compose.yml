@@ -19,5 +19,12 @@ services:
     volumes:
       - db:/var/lib/postgresql/data
 
+  testdb:
+    image: postgres:16.1-alpine
+    env_file:
+      - .env
+    expose:
+      - "${PGPORT}"
+
 volumes:
   db:
