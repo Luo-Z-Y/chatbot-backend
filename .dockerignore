@@ -1,0 +1,16 @@
+tmp
+.idea
+
+# Dependencies
+vendor/
+
+# Dev related files
+.circleci/
+.github/
+.vscode/
+.golangci.yml
+captaingithook.json
+makefile
+
+# MacOS files
+**.DS_Store

@@ -2,3 +2,4 @@ tmp
 .idea
 routes.json
 .env
+**.env**.local
