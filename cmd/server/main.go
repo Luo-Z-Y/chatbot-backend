@@ -15,7 +15,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	database.SetupDb(cfg)
+	database.SetupDb(cfg.GetDatabaseConfig())
 
 	e := router.Setup(cfg)
 

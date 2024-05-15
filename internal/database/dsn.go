@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func BuildDsn(cfg *configs.Config) (string, error) {
+func BuildDsn(cfg *configs.PostgresConfig) (string, error) {
 	dnsBuilder := strings.Builder{}
 
 	_, err := dnsBuilder.WriteString(fmt.Sprintf("host=%s", cfg.PostgresHost))

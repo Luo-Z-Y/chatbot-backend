@@ -10,7 +10,7 @@ import (
 
 var globalDb *gorm.DB
 
-func SetupDb(cfg *configs.Config) {
+func SetupDb(cfg *configs.PostgresConfig) {
 	dsn, err := BuildDsn(cfg)
 	if err != nil {
 		panic("Error building the DSN.")
@@ -23,6 +23,10 @@ func SetupDb(cfg *configs.Config) {
 	}
 
 	_ = db.AutoMigrate(&model.User{})
+	_ = db.AutoMigrate(&model.Booking{})
+	_ = db.AutoMigrate(&model.Chat{})
+	_ = db.AutoMigrate(&model.RequestQuery{})
+	_ = db.AutoMigrate(&model.Message{})
 
 	globalDb = db
 }
