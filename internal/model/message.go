@@ -20,8 +20,8 @@ type Message struct {
 	By                By
 	MessageBody       string
 	Timestamp         time.Time
-	HotelStaffId      uint
-	HotelStaff        User
+	HotelStaffId      *uint
+	HotelStaff        *User
 	RequestQueryId    uint
 	RequestQuery      RequestQuery
 }

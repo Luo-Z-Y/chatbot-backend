@@ -31,37 +31,57 @@ func TestCreateChat(t *testing.T) {
 }
 
 func TestCreateMessage(t *testing.T) {
-	SetupTestDb(t)
-	db := GetDb()
-	defer CleanUpTestDb(t, db)
+	createUserChatQuery := func(t testing.TB, db *gorm.DB) (query *model.RequestQuery, user *model.User) {
+		chat := &model.Chat{TelegramChatId: 1}
+		AssertNoErr(t, chat.Create(db))
 
-	chat := model.Chat{TelegramChatId: 1}
-	AssertNoErr(t, (&chat).Create(db))
+		query = &model.RequestQuery{
+			Status:    model.StatusOngoing,
+			Type:      model.TypeUnknown,
+			BookingId: nil,
+			Booking:   nil,
+		}
+		err := db.Model(chat).Association("RequestQueries").Append(query)
+		AssertNoErr(t, err)
 
-	query := model.RequestQuery{
-		Status:    model.StatusOngoing,
-		Type:      model.TypeUnknown,
-		BookingId: nil,
-		Booking:   nil,
+		user = &model.User{
+			Username:          "username",
+			EncryptedPassword: "password",
+		}
+		AssertNoErr(t, user.Create(db))
+		return
 	}
-	err := db.Model(&chat).Association("RequestQueries").Append(&query)
-	AssertNoErr(t, err)
+	t.Run("can create message from staff", func(t *testing.T) {
+		SetupTestDb(t)
+		db := GetDb()
+		defer CleanUpTestDb(t, db)
 
-	user := model.User{
-		Username:          "username",
-		EncryptedPassword: "password",
-	}
-	AssertNoErr(t, user.Create(db))
+		query, user := createUserChatQuery(t, db)
+		message := model.Message{
+			TelegramMessageId: 1,
+			By:                model.ByStaff,
+			MessageBody:       "very cool message",
+			Timestamp:         time.Now(),
+			HotelStaffId:      &user.ID,
+			RequestQueryId:    query.ID,
+		}
+		AssertNoErr(t, message.Create(db))
+	})
+	t.Run("can create message from bot", func(t *testing.T) {
+		SetupTestDb(t)
+		db := GetDb()
+		defer CleanUpTestDb(t, db)
 
-	message := model.Message{
-		TelegramMessageId: 1,
-		By:                model.ByStaff,
-		MessageBody:       "very cool message",
-		Timestamp:         time.Now(),
-		HotelStaffId:      user.ID,
-		RequestQueryId:    query.ID,
-	}
-	AssertNoErr(t, message.Create(db))
+		query, _ := createUserChatQuery(t, db)
+		message := model.Message{
+			TelegramMessageId: 1,
+			By:                model.ByBot,
+			MessageBody:       "very cool message",
+			Timestamp:         time.Now(),
+			RequestQueryId:    query.ID,
+		}
+		AssertNoErr(t, message.Create(db))
+	})
 }
 
 func SetupTestDb(t testing.TB) {
