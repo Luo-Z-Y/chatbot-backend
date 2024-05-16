@@ -2,8 +2,6 @@ package database
 
 import (
 	"backend/internal/configs"
-	"backend/internal/model"
-
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -21,12 +19,6 @@ func SetupDb(cfg *configs.PostgresConfig) {
 	if err != nil {
 		panic("Error opening the database.")
 	}
-
-	_ = db.AutoMigrate(&model.Booking{})
-	_ = db.AutoMigrate(&model.User{})
-	_ = db.AutoMigrate(&model.Chat{})
-	_ = db.AutoMigrate(&model.RequestQuery{})
-	_ = db.AutoMigrate(&model.Message{})
 
 	globalDb = db
 }
