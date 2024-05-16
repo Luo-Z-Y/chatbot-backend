@@ -3,7 +3,7 @@
 CREATE TABLE
     chats (
         id BIGSERIAL PRIMARY KEY,
-        telegram_chat_id BIGINT UNIQUE,
+        telegram_chat_id BIGINT NOT NULL UNIQUE,
         created_at created_at,
         updated_at updated_at,
         deleted_at deleted_at

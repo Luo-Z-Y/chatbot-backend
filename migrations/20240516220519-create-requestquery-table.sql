@@ -2,9 +2,9 @@
 CREATE TABLE
     request_queries (
         id BIGSERIAL PRIMARY KEY,
-        status TEXT,
-        type TEXT,
-        chat_id BIGINT REFERENCES chats (id),
+        status TEXT NOT NULL,
+        type TEXT NOT NULL,
+        chat_id BIGINT NOT NULL REFERENCES chats (id),
         booking_id BIGINT REFERENCES bookings (id),
         created_at created_at,
         updated_at updated_at,

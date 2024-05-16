@@ -2,8 +2,8 @@
 CREATE TABLE
     bookings (
         id BIGSERIAL PRIMARY KEY,
-        room_number TEXT,
-        last_name TEXT,
+        room_number TEXT NOT NULL,
+        last_name TEXT NOT NULL,
         chat_id BIGINT NOT NULL REFERENCES chats (id),
         created_at created_at,
         updated_at updated_at,
