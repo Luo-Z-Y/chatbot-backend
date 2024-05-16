@@ -3,7 +3,6 @@ package database
 import (
 	"backend/internal/configs"
 	"backend/internal/model"
-	"fmt"
 	"gorm.io/gorm"
 	"testing"
 	"time"
@@ -106,7 +105,4 @@ func CleanUpTestDb(t testing.TB, db *gorm.DB) {
 	db.Unscoped().Where("1 = 1").Delete(&model.Booking{})
 	db.Unscoped().Where("1 = 1").Delete(&model.Chat{})
 	db.Unscoped().Where("1 = 1").Delete(&model.User{})
-
-	fmt.Println("did u even run")
-	fmt.Println(db.Error)
 }
