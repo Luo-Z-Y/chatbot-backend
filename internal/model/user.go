@@ -7,11 +7,19 @@ import (
 	"gorm.io/gorm"
 )
 
+type Role string
+
+const (
+	StaffRole Role = "staff"
+	AdminRole Role = "admin"
+)
+
 type User struct {
 	gorm.Model
 	Username          string `gorm:"unique"`
 	EncryptedPassword string
 	Messages          []Message `gorm:"foreignKey:HotelStaffId"`
+	Role              Role
 }
 
 func (u *User) ToView() *viewmodel.UserView {
