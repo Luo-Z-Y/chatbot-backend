@@ -3,7 +3,11 @@ package database
 import (
 	"backend/internal/configs"
 	"backend/internal/model"
+	"fmt"
 	"gorm.io/gorm"
+	"os"
+	"path"
+	"runtime"
 	"testing"
 	"time"
 )
@@ -65,6 +69,13 @@ func TestCreateMessage(t *testing.T) {
 			RequestQueryId:    query.ID,
 		}
 		AssertNoErr(t, message.Create(db))
+
+		// Association example
+		var queryStaff model.User
+		db.Preload("Messages").First(&queryStaff, query.ID)
+		if len(queryStaff.Messages) != 1 || queryStaff.Messages[0].TelegramMessageId != 1 {
+			t.Error("Message in query staff is not correct")
+		}
 	})
 	t.Run("can create message from bot", func(t *testing.T) {
 		SetupTestDb(t)
@@ -80,11 +91,21 @@ func TestCreateMessage(t *testing.T) {
 			RequestQueryId:    query.ID,
 		}
 		AssertNoErr(t, message.Create(db))
+		fmt.Printf("%#v\n", message)
 	})
 }
 
 func SetupTestDb(t testing.TB) {
 	t.Helper()
+
+	// Change directory to project directory
+	_, filename, _, _ := runtime.Caller(0)
+	dir := path.Join(path.Dir(filename), "..", "..")
+	err := os.Chdir(dir)
+	if err != nil {
+		panic(err)
+	}
+
 	cfg, err := configs.GetConfig()
 	if err != nil {
 		panic(err)
