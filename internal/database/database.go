@@ -2,15 +2,13 @@ package database
 
 import (
 	"backend/internal/configs"
-	"backend/internal/model"
-
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 var globalDb *gorm.DB
 
-func SetupDb(cfg *configs.Config) {
+func SetupDb(cfg *configs.PostgresConfig) {
 	dsn, err := BuildDsn(cfg)
 	if err != nil {
 		panic("Error building the DSN.")
@@ -21,8 +19,6 @@ func SetupDb(cfg *configs.Config) {
 	if err != nil {
 		panic("Error opening the database.")
 	}
-
-	_ = db.AutoMigrate(&model.User{})
 
 	globalDb = db
 }
