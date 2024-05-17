@@ -42,7 +42,6 @@ func TestCreateMessage(t *testing.T) {
 			Status:    model.StatusOngoing,
 			Type:      model.TypeUnknown,
 			BookingId: nil,
-			Booking:   nil,
 		}
 		err := db.Model(chat).Association("RequestQueries").Append(query)
 		AssertNoErr(t, err)
@@ -72,7 +71,7 @@ func TestCreateMessage(t *testing.T) {
 
 		// Association example
 		var queryStaff model.User
-		db.Preload("Messages").First(&queryStaff, query.ID)
+		db.Preload("Messages").First(&queryStaff, user.ID)
 		if len(queryStaff.Messages) != 1 || queryStaff.Messages[0].TelegramMessageId != 1 {
 			t.Error("Message in query staff is not correct")
 		}

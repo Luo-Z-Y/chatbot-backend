@@ -34,6 +34,7 @@ type RequestQuery struct {
 }
 
 var ErrRequestHasNilBookingId = errors.New("booking id is required for requests")
+var ErrBookingIdDoesNotExist = errors.New("booking id does not exist")
 
 func (r *RequestQuery) Create(db *gorm.DB) error {
 	return db.Create(r).Error
@@ -47,9 +48,16 @@ func (r *RequestQuery) Delete(db *gorm.DB) error {
 	return db.Delete(r).Error
 }
 
-func (r *RequestQuery) BeforeSave(tx *gorm.DB) (err error) {
+func (r *RequestQuery) BeforeSave(tx *gorm.DB) error {
 	if r.Type == TypeRequest && r.BookingId == nil {
 		return ErrRequestHasNilBookingId
 	}
-	return
+	if r.BookingId != nil {
+		var booking Booking
+		tx.First(&booking, *r.BookingId)
+		if tx.Error != nil || booking.ID == 0 {
+			return ErrBookingIdDoesNotExist
+		}
+	}
+	return nil
 }
