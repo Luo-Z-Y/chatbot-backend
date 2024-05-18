@@ -3,3 +3,5 @@ tmp
 routes.json
 .env
 **.env**.local
+
+/bin
