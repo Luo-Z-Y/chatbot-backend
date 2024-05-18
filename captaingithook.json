@@ -1,6 +1,6 @@
 {
   "hooks": {
-    "pre-commit": "goimports && go vet ./...",
+    "pre-commit": "gofmt -s -w . && goimports && go vet ./...",
     "pre-push": "go build -o ./bin/main ./cmd/server/main.go"
   }
 }
