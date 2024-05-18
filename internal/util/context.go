@@ -2,6 +2,7 @@ package util
 
 import (
 	"backend/internal/model"
+
 	"github.com/labstack/echo/v4"
 )
 

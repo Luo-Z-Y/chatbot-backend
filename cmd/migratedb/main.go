@@ -5,8 +5,9 @@ import (
 	"backend/internal/database"
 	"flag"
 	"fmt"
-	"github.com/rubenv/sql-migrate"
 	"log"
+
+	migrate "github.com/rubenv/sql-migrate"
 )
 
 const migrationFilePath = "./migrations"

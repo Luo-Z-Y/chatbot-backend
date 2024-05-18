@@ -3,13 +3,14 @@ package auth
 import (
 	"backend/internal/model"
 	"errors"
+
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
 const (
 	wrongUsernameOrPassword = "username or password is incorrect"
-	invalidId               = "invalid user id"
+	invalidID               = "invalid user id"
 )
 
 func checkPasswordHash(password, hash string) bool {
@@ -40,7 +41,7 @@ func Read(db *gorm.DB, id uint) (*model.User, error) {
 		return nil, db.Error
 	}
 	if user.ID == 0 {
-		return nil, errors.New(invalidId)
+		return nil, errors.New(invalidID)
 	}
 	return &user, nil
 }

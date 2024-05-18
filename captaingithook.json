@@ -1,0 +1,6 @@
+{
+  "hooks": {
+    "pre-commit": "goimports",
+    "pre-push": "go build ./cmd/server/main.go"
+  }
+}

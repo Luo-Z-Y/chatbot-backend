@@ -4,12 +4,13 @@ import (
 	"backend/internal/configs"
 	"backend/internal/model"
 	"fmt"
-	"gorm.io/gorm"
 	"os"
 	"path"
 	"runtime"
 	"testing"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 func TestCreateChat(t *testing.T) {

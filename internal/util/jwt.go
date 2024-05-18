@@ -5,9 +5,10 @@ import (
 	"backend/internal/dataaccess/auth"
 	"backend/internal/database"
 	"backend/internal/model"
-	"github.com/golang-jwt/jwt/v5"
 	"strconv"
 	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
 type JwtCustomClaims struct {

@@ -3,6 +3,7 @@ package model
 import (
 	"backend/internal/viewmodel"
 	"errors"
+
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )

@@ -7,10 +7,11 @@ import (
 	authparams "backend/internal/params/authparams"
 	"backend/internal/util"
 	"errors"
-	"github.com/golang-jwt/jwt/v5"
-	"github.com/labstack/echo/v4"
 	"net/http"
 	"time"
+
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/labstack/echo/v4"
 )
 
 func Login(c echo.Context) error {
@@ -24,13 +25,11 @@ func Login(c echo.Context) error {
 
 	db := database.GetDb()
 	user, err := auth.CheckLogin(db, r.Username, r.Password)
-
 	if err != nil {
 		return c.JSON(http.StatusUnauthorized, err.Error())
 	}
 
 	t, err := util.GetJwtToken(user.ID)
-
 	if err != nil {
 		return c.JSON(http.StatusUnauthorized, err.Error())
 	}
