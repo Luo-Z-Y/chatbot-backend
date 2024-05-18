@@ -19,7 +19,7 @@ func main() {
 
 	e := router.Setup(cfg)
 
-	go telegram.StartChatbot(cfg.TelegramToken)
+	go telegram.StartChatbot(cfg)
 
 	// Writing routes for debugging - we can optionally delete later
 	data, _ := json.MarshalIndent(e.Routes(), "", "  ")

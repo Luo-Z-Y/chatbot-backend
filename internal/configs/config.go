@@ -8,6 +8,8 @@ import (
 )
 
 type Config struct {
+	GoEnv string `envconfig:"GO_ENV" default:"development"`
+
 	PostgresHost     string `envconfig:"POSTGRES_HOST" default:"localhost"`
 	PostgresUser     string `envconfig:"POSTGRES_USER"  default:"postgres"`
 	PostgresPassword string `envconfig:"POSTGRES_PASSWORD" default:"postgres"`

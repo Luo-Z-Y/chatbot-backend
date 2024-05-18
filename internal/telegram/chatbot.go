@@ -1,34 +1,50 @@
 package telegram
 
-import tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+import (
+	"backend/internal/configs"
+	"backend/internal/handler/tgeditedmsghandler"
+	"backend/internal/handler/tgmsghandler"
 
-// TODO: Add more functionality to this echo only bot
-func StartChatbot(token string) {
-	bot, err := tgbotapi.NewBotAPI(token)
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+)
+
+// Documentation: https://pkg.go.dev/github.com/go-telegram-bot-api/telegram-bot-api/v5#section-documentation
+// Getting started: https://go-telegram-bot-api.dev/
+
+func StartChatbot(cfg *configs.Config) {
+	bot, err := tgbotapi.NewBotAPI(cfg.TelegramToken)
 	if err != nil {
 		panic(err)
 	}
 
-	// Uncomment this line when debugging the telegram bot
-	// bot.Debug = true
+	if cfg.GoEnv == "development" {
+		bot.Debug = true
+	}
 
 	updateConfig := tgbotapi.NewUpdate(0)
-
 	updateConfig.Timeout = 30
 
 	updates := bot.GetUpdatesChan(updateConfig)
+	handleUpdates(bot, updates)
+}
 
+func handleUpdates(bot *tgbotapi.BotAPI, updates tgbotapi.UpdatesChannel) {
+	// At most 1 field in an update will be set to a non-nil value
+	// https://go-telegram-bot-api.dev/getting-started/important-notes
 	for update := range updates {
-		if update.Message == nil {
+		if update.Message != nil && update.Message.IsCommand() {
+			go tgmsghandler.HandleCommand(bot, update.Message)
 			continue
 		}
 
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
+		if update.Message != nil {
+			go tgmsghandler.HandleMessage(bot, update.Message)
+			continue
+		}
 
-		msg.ReplyToMessageID = update.Message.MessageID
-
-		if _, err := bot.Send(msg); err != nil {
-			panic(err)
+		if update.EditedMessage != nil {
+			go tgeditedmsghandler.HandleMessage(bot, update.EditedMessage)
+			continue
 		}
 	}
 }
