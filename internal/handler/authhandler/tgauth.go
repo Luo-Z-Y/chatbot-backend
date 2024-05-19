@@ -24,6 +24,10 @@ func AuthenticateTgUser(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
+	if err := c.Validate(&bkParams); err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
 	db := database.GetDb()
 
 	bk := bkParams.ToModel()
