@@ -7,8 +7,6 @@ import (
 	"gorm.io/gorm"
 )
 
-const invalidID = "invalid chat id"
-
 func Read(db *gorm.DB, id uint) (*model.Chat, error) {
 	var chat model.Chat
 	result := db.Model(&model.Chat{}).

@@ -8,8 +8,6 @@ import (
 	"gorm.io/gorm"
 )
 
-const invalidID = "invalid chat id"
-
 func Read(db *gorm.DB, id uint) (*model.RequestQuery, error) {
 	var rqq model.RequestQuery
 	result := db.Model(&model.RequestQuery{}).

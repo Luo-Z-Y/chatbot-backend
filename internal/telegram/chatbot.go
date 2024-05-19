@@ -41,11 +41,13 @@ func handleUpdates(bot *tgbotapi.BotAPI, hub *ws.Hub, updates tgbotapi.UpdatesCh
 	// https://go-telegram-bot-api.dev/getting-started/important-notes
 	for update := range updates {
 		if update.Message != nil && update.Message.IsCommand() {
+			//nolint:errcheck
 			go tgmsghandler.HandleCommand(bot, hub, update.Message)
 			continue
 		}
 
 		if update.Message != nil {
+			//nolint:errcheck
 			go tgmsghandler.HandleMessage(bot, hub, update.Message)
 			continue
 		}

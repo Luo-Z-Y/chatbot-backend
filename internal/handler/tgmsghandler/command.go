@@ -27,8 +27,11 @@ func HandleCommand(bot *tgbotapi.BotAPI, hub *ws.Hub, msg *tgbotapi.Message) err
 		response, err = HandleRequestCommand(msg)
 	}
 
-	SendTextMessage(bot, msg, response)
+	if err != nil {
+		return err
+	}
 
+	err = SendTextMessage(bot, msg, response)
 	if err != nil {
 		return err
 	}
@@ -40,7 +43,7 @@ func HandleCommand(bot *tgbotapi.BotAPI, hub *ws.Hub, msg *tgbotapi.Message) err
 		fallthrough
 	case RequestCmdWord:
 		aiResponse := GetAIResponse(msg.Chat.ID)
-		SendTextMessage(bot, msg, aiResponse)
+		return SendTextMessage(bot, msg, aiResponse)
 	}
 
 	return nil
