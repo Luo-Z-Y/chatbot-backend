@@ -5,12 +5,13 @@ import (
 	"backend/internal/dataaccess/requestquery"
 	"backend/internal/database"
 	"backend/internal/model"
+	"backend/internal/ws"
 	"fmt"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-func HandleMessage(bot *tgbotapi.BotAPI, tgMsg *tgbotapi.Message) error {
+func HandleMessage(bot *tgbotapi.BotAPI, hub *ws.Hub, tgMsg *tgbotapi.Message) error {
 	db := database.GetDb()
 	var response string
 

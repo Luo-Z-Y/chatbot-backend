@@ -3,7 +3,9 @@ package router
 import (
 	"backend/internal/configs"
 	"backend/internal/handler/authhandler"
+	"backend/internal/handler/websockethandler"
 	"backend/internal/util"
+	"backend/internal/ws"
 	"errors"
 	"net/http"
 
@@ -26,7 +28,7 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 	return nil
 }
 
-func Setup(cfg *configs.Config) *echo.Echo {
+func Setup(cfg *configs.Config, hub *ws.Hub) *echo.Echo {
 	e := echo.New()
 	e.Validator = &CustomValidator{validator: validator.New()}
 
@@ -68,6 +70,12 @@ func Setup(cfg *configs.Config) *echo.Echo {
 
 	// Routes needing authentication
 	g.GET("/current-user", authhandler.GetUser)
+
+	tg := g.Group("/tg")
+	tg.PATCH("/auth", authhandler.AuthenticateTgUser)
+
+	// Websocket
+	g.GET("/ws", websockethandler.ServeWs(hub))
 
 	return e
 }

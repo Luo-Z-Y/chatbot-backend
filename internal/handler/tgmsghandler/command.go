@@ -1,11 +1,13 @@
 package tgmsghandler
 
 import (
+	"backend/internal/ws"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 // This function should only be called when the message is a command.
-func HandleCommand(bot *tgbotapi.BotAPI, msg *tgbotapi.Message) error {
+func HandleCommand(bot *tgbotapi.BotAPI, hub *ws.Hub, msg *tgbotapi.Message) error {
 	cmd := msg.Command()
 
 	var response string
@@ -14,7 +16,7 @@ func HandleCommand(bot *tgbotapi.BotAPI, msg *tgbotapi.Message) error {
 	case HelpCmdWord:
 		response, err = HandleHelpCommand(msg)
 	case AuthCmdWord:
-		response, err = HandleAuthCommand(msg)
+		response, err = HandleAuthCommand(msg, hub)
 	case StartCmdWord:
 		response, err = HandleStartCommand(msg)
 	case AskCmdWord:

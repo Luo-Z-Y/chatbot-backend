@@ -3,6 +3,7 @@ package tgmsghandler
 import (
 	"backend/internal/dataaccess/chat"
 	"backend/internal/database"
+	"backend/internal/ws"
 	"errors"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -17,7 +18,7 @@ var (
 	CredentialsNotFound = errors.New("Credentials not found")
 )
 
-func HandleAuthCommand(msg *tgbotapi.Message) (string, error) {
+func HandleAuthCommand(msg *tgbotapi.Message, hub *ws.Hub) (string, error) {
 	tgChatID := msg.Chat.ID
 
 	db := database.GetDb()
