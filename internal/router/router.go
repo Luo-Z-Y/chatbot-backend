@@ -72,7 +72,7 @@ func Setup(cfg *configs.Config, hub *ws.Hub) *echo.Echo {
 	g.GET("/current-user", authhandler.GetUser)
 
 	tg := g.Group("/tg")
-	tg.PATCH("/auth", authhandler.AuthenticateTgUser)
+	tg.POST("/auth", authhandler.AuthenticateTgUser)
 
 	// Websocket
 	g.GET("/ws", websockethandler.ServeWs(hub))
