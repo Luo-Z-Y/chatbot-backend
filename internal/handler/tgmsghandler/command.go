@@ -6,6 +6,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
+// This function should only be called when the message is a command.
 func HandleCommand(bot *tgbotapi.BotAPI, msg *tgbotapi.Message) error {
 	cmd := msg.Command()
 
@@ -20,6 +21,7 @@ func HandleCommand(bot *tgbotapi.BotAPI, msg *tgbotapi.Message) error {
 		tgcmd.HandleRequestCommand(msg)
 	}
 
+	// TODO: error handling
 	if _, err := bot.Send(tgbotapi.NewMessage(msg.Chat.ID, msg.Text)); err != nil {
 		return err
 	}
