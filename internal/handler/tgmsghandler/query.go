@@ -26,7 +26,7 @@ func HandleQueryCommand(msg *tgbotapi.Message) (string, error) {
 
 	bk, _ := booking.ReadByChatID(db, chat.ID)
 
-	if err := createRequestQueryTransaction(db, msg, chat, bk, model.TypeRequest); err != nil {
+	if err := createRequestQueryTransaction(db, msg, chat, bk, model.TypeQuery); err != nil {
 		return "An error occurred while creating a new query", err
 	}
 

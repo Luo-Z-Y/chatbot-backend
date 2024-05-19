@@ -1,6 +1,7 @@
 package tgmsghandler
 
 import (
+	"backend/internal/dataaccess/chat"
 	"backend/internal/dataaccess/message"
 	"backend/internal/dataaccess/requestquery"
 	"backend/internal/database"
@@ -15,7 +16,13 @@ func HandleMessage(bot *tgbotapi.BotAPI, hub *ws.Hub, tgMsg *tgbotapi.Message) e
 	db := database.GetDb()
 	var response string
 
-	rqq, err := requestquery.ReadLatestByChatID(db, uint(tgMsg.Chat.ID))
+	chat, err := chat.ReadByTgChatID(db, tgMsg.Chat.ID)
+	if err != nil {
+		response = "Chat not found, please start a new chat with /" + StartCmdWord
+		return SendTextMessage(bot, tgMsg, response)
+	}
+
+	rqq, err := requestquery.ReadLatestByChatID(db, chat.ID)
 	if err != nil {
 		response = fmt.Sprintf(
 			"Please start a new query first. Use /%s, /%s, or /%s",

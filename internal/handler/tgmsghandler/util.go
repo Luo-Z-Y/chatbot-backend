@@ -1,10 +1,14 @@
 package tgmsghandler
 
 import (
+	"backend/internal/dataaccess/chat"
 	"backend/internal/dataaccess/message"
 	"backend/internal/dataaccess/requestquery"
+	"backend/internal/database"
 	"backend/internal/model"
+	"fmt"
 	"math/rand"
+	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"gorm.io/gorm"
@@ -22,9 +26,38 @@ func _tempRandomType() model.Type {
 	}
 }
 
-func GetAIResponse(chatID int64) string {
+func GetAIResponse(tgChatID int64) string {
 	// --- Perform query to AI to determine the type of query --- //
-	return "Placeholder AI response"
+	response := "Placeholder AI response"
+
+	db := database.GetDb()
+
+	chat, err := chat.ReadByTgChatID(db, tgChatID)
+	if err != nil {
+		return "Chat not found"
+	}
+
+	rqq, err := requestquery.ReadLatestByChatID(db, chat.ID)
+	if err != nil {
+		return fmt.Sprintf(
+			"Please start a new query first. Use /%s, /%s, or /%s",
+			AskCmdWord, QueryCmdWord, RequestCmdWord,
+		)
+	}
+
+	msg := model.Message{
+		TelegramMessageId: chat.TelegramChatId,
+		By:                model.ByBot,
+		MessageBody:       response,
+		Timestamp:         time.Now(),
+		RequestQueryId:    rqq.ID,
+	}
+
+	if err := message.Create(db, &msg); err != nil {
+		return "Error creating message"
+	}
+
+	return response
 }
 
 func SendTextMessage(bot *tgbotapi.BotAPI, msg *tgbotapi.Message, text string) error {
