@@ -3,7 +3,9 @@ package tgmsghandler
 import (
 	"backend/internal/dataaccess/chat"
 	"backend/internal/database"
+	"backend/internal/viewmodel"
 	"backend/internal/ws"
+	"encoding/json"
 	"errors"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -23,17 +25,29 @@ func HandleAuthCommand(msg *tgbotapi.Message, hub *ws.Hub) (string, error) {
 
 	db := database.GetDb()
 
-	_, err := chat.ReadByTgChatID(db, tgChatID)
+	chat, err := chat.ReadByTgChatID(db, tgChatID)
 	if err != nil {
 		return NoChatFoundResponse, err
 	}
 
-	_, err = extractCredentials(msg.Text)
+	cred, err := extractCredentials(msg.Text)
 	if err != nil {
 		return err.Error(), err
 	}
 
-	return "New query created", nil
+	tgAuthView := viewmodel.TgAuthView{
+		ChatID:      chat.ID,
+		Credentials: cred,
+	}
+
+	payload, err := json.Marshal(tgAuthView)
+	if err != nil {
+		return "Failed to marshal payload", err
+	}
+
+	hub.Broadcast <- payload
+
+	return "Authentication request made. Pending response from staff.", nil
 }
 
 // Commands are prefixed with a slash (/cmd args)

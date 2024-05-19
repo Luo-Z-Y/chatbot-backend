@@ -2,6 +2,7 @@ package authhandler
 
 import (
 	"backend/internal/dataaccess/booking"
+	"backend/internal/dataaccess/chat"
 	"backend/internal/database"
 	"backend/internal/params/bookingparams"
 	"backend/internal/telegram"
@@ -27,17 +28,22 @@ func AuthenticateTgUser(c echo.Context) error {
 
 	bk := bkParams.ToModel()
 
+	chat, err := chat.Read(db, bk.ChatId)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
 	if err := booking.Create(db, bk); err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
 	tgBotApi := telegram.GetBotAPI()
 
-	response := tgbotapi.NewMessage(int64(bk.ChatId), AuthSuccessMsg)
-	_, err := tgBotApi.Send(response)
+	response := tgbotapi.NewMessage(int64(chat.TelegramChatId), AuthSuccessMsg)
+	_, err = tgBotApi.Send(response)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	return nil
+	return c.NoContent(http.StatusOK)
 }

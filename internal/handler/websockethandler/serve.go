@@ -9,8 +9,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-const ()
-
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
