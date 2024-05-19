@@ -3,7 +3,6 @@ package requestquery
 import (
 	"backend/internal/dataaccess/message"
 	"backend/internal/model"
-	"fmt"
 
 	"gorm.io/gorm"
 )
@@ -63,12 +62,10 @@ func Delete(db *gorm.DB, rqq *model.RequestQuery) error {
 
 func ensureChatExists(db *gorm.DB, id uint) error {
 	var chat model.Chat
-	fmt.Println("ensure chat exists")
 	result := db.Model(&model.Chat{}).
 		Where("id = ?", id).
 		First(&chat)
 	if result.Error != nil {
-		fmt.Println("ensure chat exists")
 		return result.Error
 	}
 
