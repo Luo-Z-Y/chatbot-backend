@@ -42,7 +42,7 @@ func TestCreateMessage(t *testing.T) {
 		query = &model.RequestQuery{
 			Status:    model.StatusOngoing,
 			Type:      model.TypeUnknown,
-			BookingId: nil,
+			BookingID: nil,
 		}
 		err := db.Model(chat).Association("RequestQueries").Append(query)
 		AssertNoErr(t, err)

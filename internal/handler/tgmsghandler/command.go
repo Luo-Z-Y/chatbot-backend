@@ -1,8 +1,6 @@
 package tgmsghandler
 
 import (
-	"backend/internal/handler/tgmsghandler/tgcmd"
-
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
@@ -10,21 +8,30 @@ import (
 func HandleCommand(bot *tgbotapi.BotAPI, msg *tgbotapi.Message) error {
 	cmd := msg.Command()
 
+	var response string
+	var err error
 	switch cmd {
-	case "help":
-		tgcmd.HandleHelpCommand(msg)
-	case "new":
-		tgcmd.HandleNewCommand(msg)
-	case "query":
-		tgcmd.HandleQueryCommand(msg)
-	case "request":
-		tgcmd.HandleRequestCommand(msg)
+	case HelpCmdWord:
+		response, err = HandleHelpCommand(msg)
+	case AuthCmdWord:
+		response, err = HandleAuthCommand(msg)
+	case StartCmdWord:
+		response, err = HandleStartCommand(msg)
+	case AskCmdWord:
+		response, err = HandleAskCommand(msg)
+	case QueryCmdWord:
+		response, err = HandleQueryCommand(msg)
+	case RequestCmdWord:
+		response, err = HandleRequestCommand(msg)
 	}
 
-	// TODO: error handling
-	if _, err := bot.Send(tgbotapi.NewMessage(msg.Chat.ID, msg.Text)); err != nil {
-		return err
+	// Handle error
+	SendTextMessage(bot, msg, response)
+
+	if err == nil {
+		aiResponse := GetAIResponse(msg.Chat.ID)
+		return SendTextMessage(bot, msg, aiResponse)
 	}
 
-	return nil
+	return err
 }

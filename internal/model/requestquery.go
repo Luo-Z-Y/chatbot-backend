@@ -1,6 +1,7 @@
 package model
 
 import (
+	autherror "backend/pkg/error/externalerror"
 	"errors"
 
 	"gorm.io/gorm"
@@ -27,14 +28,14 @@ type RequestQuery struct {
 	gorm.Model
 	Status    Status
 	Type      Type
-	BookingId *uint
+	BookingID *uint
 	Booking   *Booking
-	ChatId    uint
+	ChatID    uint
 	Chat      Chat
 	Messages  []Message
 }
 
-var ErrRequestHasNilBookingId = errors.New("booking id is required for requests")
+var ErrRequestHasNilBookingId = autherror.AuthRequiredError{}
 var ErrBookingIdDoesNotExist = errors.New("booking id does not exist")
 
 func (r *RequestQuery) Create(db *gorm.DB) error {
@@ -50,12 +51,12 @@ func (r *RequestQuery) Delete(db *gorm.DB) error {
 }
 
 func (r *RequestQuery) BeforeSave(tx *gorm.DB) error {
-	if r.Type == TypeRequest && r.BookingId == nil {
+	if r.Type == TypeRequest && r.BookingID == nil {
 		return ErrRequestHasNilBookingId
 	}
-	if r.BookingId != nil {
+	if r.BookingID != nil {
 		var booking Booking
-		tx.First(&booking, *r.BookingId)
+		tx.First(&booking, *r.BookingID)
 		if tx.Error != nil || booking.ID == 0 {
 			return ErrBookingIdDoesNotExist
 		}

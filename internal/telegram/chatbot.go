@@ -2,7 +2,6 @@ package telegram
 
 import (
 	"backend/internal/configs"
-	"backend/internal/handler/tgeditedmsghandler"
 	"backend/internal/handler/tgmsghandler"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -39,11 +38,6 @@ func handleUpdates(bot *tgbotapi.BotAPI, updates tgbotapi.UpdatesChannel) {
 
 		if update.Message != nil {
 			go tgmsghandler.HandleMessage(bot, update.Message)
-			continue
-		}
-
-		if update.EditedMessage != nil {
-			go tgeditedmsghandler.HandleMessage(bot, update.EditedMessage)
 			continue
 		}
 	}
