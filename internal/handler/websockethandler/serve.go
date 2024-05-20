@@ -27,6 +27,7 @@ func ServeWs(hub *ws.Hub) func(c echo.Context) error {
 		hub.Register <- conn
 
 		go func() {
+			// Defer the unregistering of the connection
 			defer func() {
 				hub.Unregister <- conn
 			}()
@@ -34,7 +35,9 @@ func ServeWs(hub *ws.Hub) func(c echo.Context) error {
 				// At the moment, we are only emitting messages to the client and not receiving any
 				_, _, err := conn.ReadMessage()
 				if err != nil {
-					if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+					if websocket.IsUnexpectedCloseError(
+						err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure,
+					) {
 						log.Printf("unexpected close error: %v", err)
 					}
 					break
