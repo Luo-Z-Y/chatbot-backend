@@ -27,11 +27,8 @@ func HandleCommand(bot *tgbotapi.BotAPI, hub *ws.Hub, msg *tgbotapi.Message) err
 		response, err = HandleRequestCommand(msg)
 	}
 
-	if err != nil {
-		return err
-	}
+	_ = SendTextMessage(bot, msg, response)
 
-	err = SendTextMessage(bot, msg, response)
 	if err != nil {
 		return err
 	}

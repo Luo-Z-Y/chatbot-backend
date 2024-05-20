@@ -6,6 +6,7 @@ import (
 	"backend/internal/database"
 	"backend/internal/model"
 	autherror "backend/pkg/error/externalerror"
+	"backend/pkg/error/internalerror"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
@@ -29,7 +30,10 @@ func HandleRequestCommand(msg *tgbotapi.Message) (string, error) {
 		return NoChatFoundResponse, err
 	}
 
-	bk, _ := booking.ReadByChatID(db, chat.ID)
+	bk, err := booking.ReadByChatID(db, chat.ID)
+	if err != nil && !internalerror.IsRecordNotFoundError(err) {
+		return "An error occurred while fetching booking", err
+	}
 
 	if err := createRequestQueryTransaction(db, msg, chat, bk, model.TypeRequest); err != nil {
 		if autherror.IsAuthRequiredError(err) {

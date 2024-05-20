@@ -1,6 +1,7 @@
 package tgmsghandler
 
 import (
+	"backend/internal/api"
 	"backend/internal/dataaccess/chat"
 	"backend/internal/database"
 	"backend/internal/viewmodel"
@@ -40,12 +41,17 @@ func HandleAuthCommand(msg *tgbotapi.Message, hub *ws.Hub) (string, error) {
 		Credentials: cred,
 	}
 
-	payload, err := json.Marshal(tgAuthView)
+	msgStruct := api.WebSocketMessage{
+		Type: api.AuthType,
+		Data: tgAuthView,
+	}
+
+	msgBytes, err := json.Marshal(msgStruct)
 	if err != nil {
 		return "Failed to marshal payload", err
 	}
 
-	hub.Broadcast <- payload
+	hub.Broadcast <- msgBytes
 
 	return "Authentication request made. Pending response from staff.", nil
 }
