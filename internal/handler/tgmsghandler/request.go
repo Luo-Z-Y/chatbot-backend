@@ -5,7 +5,7 @@ import (
 	"backend/internal/dataaccess/chat"
 	"backend/internal/database"
 	"backend/internal/model"
-	autherror "backend/pkg/error/externalerror"
+	"backend/pkg/error/externalerror"
 	"backend/pkg/error/internalerror"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -36,7 +36,7 @@ func HandleRequestCommand(msg *tgbotapi.Message) (string, error) {
 	}
 
 	if err := createRequestQueryTransaction(db, msg, chat, bk, model.TypeRequest); err != nil {
-		if autherror.IsAuthRequiredError(err) {
+		if externalerror.IsAuthRequiredError(err) {
 			return AuthRequiredErrorResponse, err
 		}
 		return "An error occurred while creating a new request", err

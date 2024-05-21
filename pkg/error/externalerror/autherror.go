@@ -1,4 +1,4 @@
-package autherror
+package externalerror
 
 import "errors"
 
