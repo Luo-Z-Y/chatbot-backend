@@ -1,7 +1,7 @@
 package model
 
 import (
-	autherror "backend/pkg/error/externalerror"
+	"backend/pkg/error/externalerror"
 	"errors"
 
 	"gorm.io/gorm"
@@ -35,7 +35,7 @@ type RequestQuery struct {
 	Messages  []Message
 }
 
-var ErrRequestHasNilBookingId = autherror.AuthRequiredError{}
+var ErrRequestHasNilBookingId = externalerror.AuthRequiredError{}
 var ErrBookingIdDoesNotExist = errors.New("booking id does not exist")
 
 func (r *RequestQuery) Create(db *gorm.DB) error {
