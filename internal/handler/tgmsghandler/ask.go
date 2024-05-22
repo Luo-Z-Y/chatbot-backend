@@ -5,6 +5,7 @@ import (
 	"backend/internal/database"
 	"backend/internal/model"
 	"backend/internal/ws"
+	"backend/pkg/error/externalerror"
 	"backend/pkg/error/internalerror"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -35,6 +36,10 @@ func HandleAskCommand(bot *tgbotapi.BotAPI, hub *ws.Hub, msg *tgbotapi.Message) 
 	queryType := _tempRandomType()
 
 	if err := createRequestQuery(db, queryType, chat, nil); err != nil {
+		if externalerror.IsAuthRequiredError(err) {
+			_, err := SendTelegramMessage(bot, msg, AuthRequiredErrorResponse)
+			return err
+		}
 		return err
 	}
 

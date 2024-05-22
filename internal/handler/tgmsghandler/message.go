@@ -5,19 +5,8 @@ import (
 	"backend/internal/model"
 	"backend/internal/ws"
 	"backend/pkg/error/internalerror"
-	"fmt"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-)
-
-var (
-	NoChatQueryFoundResponse = fmt.Sprintf(
-		"Chat or query not found, please start a chat with /%s followed by making a new query with /%s, /%s, or /%s",
-		StartCmdWord,
-		AskCmdWord,
-		QueryCmdWord,
-		RequestCmdWord,
-	)
 )
 
 func HandleMessage(bot *tgbotapi.BotAPI, hub *ws.Hub, tgMsg *tgbotapi.Message) error {
@@ -25,8 +14,12 @@ func HandleMessage(bot *tgbotapi.BotAPI, hub *ws.Hub, tgMsg *tgbotapi.Message) e
 
 	msgModel, err := saveTgMessageToDB(db, tgMsg, model.ByGuest)
 	if err != nil {
-		if internalerror.IsRecordNotFoundError(err) {
-			_, err := SendTelegramMessage(bot, tgMsg, NoChatQueryFoundResponse)
+		if internalerror.IsChatNotFoundError(err) {
+			_, err := SendTelegramMessage(bot, tgMsg, NoChatFoundResponse)
+			return err
+		}
+		if internalerror.IsRequestQueryNotFoundError(err) {
+			_, err := SendTelegramMessage(bot, tgMsg, NoQueryFoundResponse)
 			return err
 		}
 		return err

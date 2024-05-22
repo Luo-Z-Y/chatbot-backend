@@ -8,6 +8,7 @@ import (
 	"backend/internal/model"
 	"backend/internal/viewmodel"
 	"backend/internal/ws"
+	"backend/pkg/error/internalerror"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -23,7 +24,8 @@ var (
 		"Please start a new query first. Use /%s, /%s, or /%s",
 		AskCmdWord, QueryCmdWord, RequestCmdWord,
 	)
-	NoQueryFoundErr = errors.New(NoQueryFoundResponse)
+	NoQueryFoundErr = internalerror.RequestQueryNotFoundError{}
+	NoChatFoundErr  = internalerror.ChatNotFoundError{}
 )
 
 func _tempRandomType() model.Type {
@@ -47,11 +49,17 @@ func getAIResponse(_ *gorm.DB, _ int64) (string, error) {
 func saveTgMessageToDB(db *gorm.DB, msg *tgbotapi.Message, by model.By) (*model.Message, error) {
 	chat, err := chat.ReadByTgChatID(db, msg.Chat.ID)
 	if err != nil {
+		if internalerror.IsRecordNotFoundError(err) {
+			return nil, NoChatFoundErr
+		}
 		return nil, err
 	}
 
 	rqq, err := requestquery.ReadLatestByChatID(db, chat.ID)
 	if err != nil {
+		if internalerror.IsRecordNotFoundError(err) {
+			return nil, NoQueryFoundErr
+		}
 		return nil, err
 	}
 
