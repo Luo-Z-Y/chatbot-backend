@@ -93,7 +93,7 @@ func createRequestQuery(
 	return nil
 }
 
-func sendTelegramMessage(
+func SendTelegramMessage(
 	bot *tgbotapi.BotAPI,
 	prompt *tgbotapi.Message,
 	content string,

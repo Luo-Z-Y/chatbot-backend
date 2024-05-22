@@ -32,7 +32,7 @@ func HandleHelpCommand(bot *tgbotapi.BotAPI, hub *ws.Hub, msg *tgbotapi.Message)
 		return err
 	}
 
-	res, err := sendTelegramMessage(bot, msg, helpMsg)
+	res, err := SendTelegramMessage(bot, msg, helpMsg)
 	if err != nil {
 		return err
 	}

@@ -26,7 +26,7 @@ func HandleMessage(bot *tgbotapi.BotAPI, hub *ws.Hub, tgMsg *tgbotapi.Message) e
 	msgModel, err := saveTgMessageToDB(db, tgMsg, model.ByGuest)
 	if err != nil {
 		if internalerror.IsRecordNotFoundError(err) {
-			_, err := sendTelegramMessage(bot, tgMsg, NoChatQueryFoundResponse)
+			_, err := SendTelegramMessage(bot, tgMsg, NoChatQueryFoundResponse)
 			return err
 		}
 		return err
@@ -41,6 +41,6 @@ func HandleMessage(bot *tgbotapi.BotAPI, hub *ws.Hub, tgMsg *tgbotapi.Message) e
 		return err
 	}
 
-	_, err = sendTelegramMessage(bot, tgMsg, res)
+	_, err = SendTelegramMessage(bot, tgMsg, res)
 	return err
 }

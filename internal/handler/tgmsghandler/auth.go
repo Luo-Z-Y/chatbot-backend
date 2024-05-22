@@ -39,7 +39,7 @@ func HandleAuthCommand(bot *tgbotapi.BotAPI, hub *ws.Hub, msg *tgbotapi.Message)
 	chat, err := chat.ReadByTgChatID(db, msg.Chat.ID)
 	if err != nil {
 		if internalerror.IsRecordNotFoundError(err) {
-			_, err := sendTelegramMessage(bot, msg, NoChatFoundResponse)
+			_, err := SendTelegramMessage(bot, msg, NoChatFoundResponse)
 			return err
 		}
 		return err
@@ -54,12 +54,16 @@ func HandleAuthCommand(bot *tgbotapi.BotAPI, hub *ws.Hub, msg *tgbotapi.Message)
 		return err
 	}
 
-	res, err := sendTelegramMessage(bot, msg, AuthRequestMadeResponse)
+	res, err := SendTelegramMessage(bot, msg, AuthRequestMadeResponse)
 	if err != nil {
 		return err
 	}
 
-	return broadcastDanglingMessage(hub, res, model.ByBot)
+	if err := broadcastDanglingMessage(hub, res, model.ByBot); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Commands are prefixed with a slash (/cmd args)

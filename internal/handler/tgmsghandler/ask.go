@@ -25,7 +25,7 @@ func HandleAskCommand(bot *tgbotapi.BotAPI, hub *ws.Hub, msg *tgbotapi.Message) 
 	chat, err := chat.ReadByTgChatID(db, msg.Chat.ID)
 	if err != nil {
 		if internalerror.IsRecordNotFoundError(err) {
-			_, err := sendTelegramMessage(bot, msg, NoChatFoundResponse)
+			_, err := SendTelegramMessage(bot, msg, NoChatFoundResponse)
 			return err
 		}
 		return err
@@ -52,7 +52,7 @@ func HandleAskCommand(bot *tgbotapi.BotAPI, hub *ws.Hub, msg *tgbotapi.Message) 
 		return err
 	}
 
-	aiReplyMsg, err := sendTelegramMessage(bot, msg, aiResponse)
+	aiReplyMsg, err := SendTelegramMessage(bot, msg, aiResponse)
 	if err != nil {
 		return err
 	}

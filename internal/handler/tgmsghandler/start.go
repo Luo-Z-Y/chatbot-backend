@@ -36,10 +36,10 @@ func HandleStartCommand(bot *tgbotapi.BotAPI, hub *ws.Hub, msg *tgbotapi.Message
 	}
 
 	if err := chat.Create(db, &tgChat); err != nil {
-		_, err = sendTelegramMessage(bot, msg, ChatAlreadyExistsResponse)
+		_, err = SendTelegramMessage(bot, msg, ChatAlreadyExistsResponse)
 		return err
 	}
 
-	_, err := sendTelegramMessage(bot, msg, ChatCreatedResponse)
+	_, err := SendTelegramMessage(bot, msg, ChatCreatedResponse)
 	return err
 }

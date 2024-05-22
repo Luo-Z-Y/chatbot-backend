@@ -28,7 +28,7 @@ func HandleRequestCommand(bot *tgbotapi.BotAPI, hub *ws.Hub, msg *tgbotapi.Messa
 	chat, err := chat.ReadByTgChatID(db, msg.Chat.ID)
 	if err != nil {
 		if internalerror.IsRecordNotFoundError(err) {
-			_, err := sendTelegramMessage(bot, msg, NoChatFoundResponse)
+			_, err := SendTelegramMessage(bot, msg, NoChatFoundResponse)
 			return err
 		}
 		return err
@@ -41,7 +41,7 @@ func HandleRequestCommand(bot *tgbotapi.BotAPI, hub *ws.Hub, msg *tgbotapi.Messa
 
 	if err := createRequestQuery(db, model.TypeRequest, chat, bk); err != nil {
 		if externalerror.IsAuthRequiredError(err) {
-			_, err := sendTelegramMessage(bot, msg, AuthRequiredErrorResponse)
+			_, err := SendTelegramMessage(bot, msg, AuthRequiredErrorResponse)
 			return err
 		}
 		return err
@@ -61,7 +61,7 @@ func HandleRequestCommand(bot *tgbotapi.BotAPI, hub *ws.Hub, msg *tgbotapi.Messa
 		return err
 	}
 
-	aiReplyMsg, err := sendTelegramMessage(bot, msg, aiResponse)
+	aiReplyMsg, err := SendTelegramMessage(bot, msg, aiResponse)
 	if err != nil {
 		return err
 	}
