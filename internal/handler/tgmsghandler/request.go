@@ -18,6 +18,7 @@ const (
 
 const (
 	AuthRequiredErrorResponse = "Authentication required before request can be processed, please provide your booking ID"
+	RequestCreatedResponse    = "New request created, please wait for a response"
 )
 
 func HandleRequestCommand(msg *tgbotapi.Message) (string, error) {
@@ -27,20 +28,23 @@ func HandleRequestCommand(msg *tgbotapi.Message) (string, error) {
 
 	chat, err := chat.ReadByTgChatID(db, tgChatID)
 	if err != nil {
-		return NoChatFoundResponse, err
+		if internalerror.IsRecordNotFoundError(err) {
+			return NoChatFoundResponse, nil
+		}
+		return "", err
 	}
 
 	bk, err := booking.ReadByChatID(db, chat.ID)
 	if err != nil && !internalerror.IsRecordNotFoundError(err) {
-		return "An error occurred while fetching booking", err
+		return "", err
 	}
 
-	if err := createRequestQueryTransaction(db, msg, chat, bk, model.TypeRequest); err != nil {
+	if err := createRequestQuery(db, model.TypeRequest, chat, bk); err != nil {
 		if externalerror.IsAuthRequiredError(err) {
 			return AuthRequiredErrorResponse, err
 		}
-		return "An error occurred while creating a new request", err
+		return "", err
 	}
 
-	return "New query created", nil
+	return RequestCreatedResponse, nil
 }

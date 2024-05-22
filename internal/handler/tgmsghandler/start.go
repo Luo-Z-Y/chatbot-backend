@@ -14,6 +14,11 @@ const (
 	StartCmdDesc = "Start a new chat"
 )
 
+const (
+	ChatAlreadyExistsResponse = "You have already started the chat :)"
+	ChatCreatedResponse       = "New chat created"
+)
+
 var (
 	SuccessChatCreationResponse = fmt.Sprintf(
 		"New chat created, you can now start a new query using /%s, /%s, or /%s",
@@ -22,17 +27,15 @@ var (
 )
 
 func HandleStartCommand(msg *tgbotapi.Message) (string, error) {
-	tgChatID := msg.Chat.ID
-
 	db := database.GetDb()
 
 	tgChat := model.Chat{
-		TelegramChatId: tgChatID,
+		TelegramChatId: msg.Chat.ID,
 	}
 
 	if err := chat.Create(db, &tgChat); err != nil {
-		return "You have already started the chat :)", err
+		return ChatAlreadyExistsResponse, nil
 	}
 
-	return "New chat created", nil
+	return ChatCreatedResponse, nil
 }

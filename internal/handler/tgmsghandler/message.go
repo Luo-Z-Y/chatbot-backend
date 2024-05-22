@@ -1,48 +1,46 @@
 package tgmsghandler
 
 import (
-	"backend/internal/dataaccess/chat"
-	"backend/internal/dataaccess/message"
-	"backend/internal/dataaccess/requestquery"
 	"backend/internal/database"
 	"backend/internal/model"
 	"backend/internal/ws"
+	"backend/pkg/error/internalerror"
 	"fmt"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
+var (
+	NoChatQueryFoundResponse = fmt.Sprintf(
+		"Chat or query not found, please start a chat with /%s followed by making a new query with /%s, /%s, or /%s",
+		StartCmdWord,
+		AskCmdWord,
+		QueryCmdWord,
+		RequestCmdWord,
+	)
+)
+
 func HandleMessage(bot *tgbotapi.BotAPI, hub *ws.Hub, tgMsg *tgbotapi.Message) error {
 	db := database.GetDb()
-	var response string
 
-	chat, err := chat.ReadByTgChatID(db, tgMsg.Chat.ID)
+	msgModel, err := saveTgMessageToDB(db, tgMsg, model.ByGuest)
 	if err != nil {
-		response = "Chat not found, please start a new chat with /" + StartCmdWord
-		return SendTextMessage(bot, tgMsg, response)
-	}
-
-	rqq, err := requestquery.ReadLatestByChatID(db, chat.ID)
-	if err != nil {
-		response = fmt.Sprintf(
-			"Please start a new query first. Use /%s, /%s, or /%s",
-			AskCmdWord, QueryCmdWord, RequestCmdWord,
-		)
-		return SendTextMessage(bot, tgMsg, response)
-	}
-
-	msg := model.Message{
-		TelegramMessageId: int64(tgMsg.MessageID),
-		By:                model.ByGuest,
-		MessageBody:       tgMsg.Text,
-		Timestamp:         tgMsg.Time(),
-		RequestQueryId:    rqq.ID,
-	}
-
-	if err := message.Create(db, &msg); err != nil {
+		if internalerror.IsRecordNotFoundError(err) {
+			_, err := sendTelegramMessage(bot, tgMsg, NoChatQueryFoundResponse)
+			return err
+		}
 		return err
 	}
 
-	response = GetAIResponse(tgMsg.Chat.ID)
-	return SendTextMessage(bot, tgMsg, response)
+	if err := broadcastMessage(hub, msgModel, model.ByGuest); err != nil {
+		return err
+	}
+
+	res, err := getAIResponse(db, tgMsg.Chat.ID)
+	if err != nil {
+		return err
+	}
+
+	_, err = sendTelegramMessage(bot, tgMsg, res)
+	return err
 }

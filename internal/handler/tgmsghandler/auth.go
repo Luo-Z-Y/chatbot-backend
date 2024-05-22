@@ -6,6 +6,7 @@ import (
 	"backend/internal/database"
 	"backend/internal/viewmodel"
 	"backend/internal/ws"
+	"backend/pkg/error/internalerror"
 	"encoding/json"
 	"errors"
 
@@ -15,6 +16,10 @@ import (
 const (
 	AuthCmdWord = "auth"
 	AuthCmdDesc = "Authenticate yourself to make a request. Please provide your credentials"
+)
+
+const (
+	AuthRequestMadeResponse = "Authentication request made. Pending response from staff."
 )
 
 var (
@@ -28,7 +33,10 @@ func HandleAuthCommand(msg *tgbotapi.Message, hub *ws.Hub) (string, error) {
 
 	chat, err := chat.ReadByTgChatID(db, tgChatID)
 	if err != nil {
-		return NoChatFoundResponse, err
+		if internalerror.IsRecordNotFoundError(err) {
+			return NoChatFoundResponse, nil
+		}
+		return "", err
 	}
 
 	cred, err := extractCredentials(msg.Text)
@@ -48,12 +56,11 @@ func HandleAuthCommand(msg *tgbotapi.Message, hub *ws.Hub) (string, error) {
 
 	msgBytes, err := json.Marshal(msgStruct)
 	if err != nil {
-		return "Failed to marshal payload", err
+		return "", err
 	}
 
 	hub.Broadcast <- msgBytes
-
-	return "Authentication request made. Pending response from staff.", nil
+	return AuthRequestMadeResponse, nil
 }
 
 // Commands are prefixed with a slash (/cmd args)

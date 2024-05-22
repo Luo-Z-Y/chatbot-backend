@@ -1,7 +1,8 @@
 package api
 
 const (
-	AuthType = "auth"
+	AuthType            = "auth"
+	MessageReceivedType = "message_received"
 )
 
 type WebSocketMessage struct {

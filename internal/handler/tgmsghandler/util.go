@@ -1,17 +1,29 @@
 package tgmsghandler
 
 import (
+	"backend/internal/api"
 	"backend/internal/dataaccess/chat"
 	"backend/internal/dataaccess/message"
 	"backend/internal/dataaccess/requestquery"
-	"backend/internal/database"
 	"backend/internal/model"
+	"backend/internal/viewmodel"
+	"backend/internal/ws"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"math/rand"
 	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"gorm.io/gorm"
+)
+
+var (
+	NoQueryFoundResponse = fmt.Sprintf(
+		"Please start a new query first. Use /%s, /%s, or /%s",
+		AskCmdWord, QueryCmdWord, RequestCmdWord,
+	)
+	NoQueryFoundErr = errors.New(NoQueryFoundResponse)
 )
 
 func _tempRandomType() model.Type {
@@ -26,83 +38,98 @@ func _tempRandomType() model.Type {
 	}
 }
 
-func GetAIResponse(tgChatID int64) string {
-	// --- Perform query to AI to determine the type of query --- //
+func getAIResponse(_ *gorm.DB, _ int64) (string, error) {
 	response := "Placeholder AI response"
+	return response, nil
+}
 
-	db := database.GetDb()
-
-	chat, err := chat.ReadByTgChatID(db, tgChatID)
+func saveTgMessageToDB(db *gorm.DB, msg *tgbotapi.Message, by model.By) (*model.Message, error) {
+	chat, err := chat.ReadByTgChatID(db, msg.Chat.ID)
 	if err != nil {
-		return "Chat not found"
+		return nil, err
 	}
 
 	rqq, err := requestquery.ReadLatestByChatID(db, chat.ID)
 	if err != nil {
-		return fmt.Sprintf(
-			"Please start a new query first. Use /%s, /%s, or /%s",
-			AskCmdWord, QueryCmdWord, RequestCmdWord,
-		)
+		return nil, err
 	}
 
-	msg := model.Message{
+	msgModel := model.Message{
 		TelegramMessageId: chat.TelegramChatId,
-		By:                model.ByBot,
-		MessageBody:       response,
+		By:                by,
+		MessageBody:       msg.Text,
 		Timestamp:         time.Now(),
 		RequestQueryId:    rqq.ID,
 	}
 
-	if err := message.Create(db, &msg); err != nil {
-		return "Error creating message"
+	if err := message.Create(db, &msgModel); err != nil {
+		return nil, err
 	}
 
-	return response
+	return &msgModel, nil
 }
 
-func SendTextMessage(bot *tgbotapi.BotAPI, msg *tgbotapi.Message, text string) error {
-	response := tgbotapi.NewMessage(msg.Chat.ID, text)
-	response.ReplyToMessageID = msg.MessageID
-	_, err := bot.Send(response)
-	return err
-}
-
-func createRequestQueryTransaction(
+func createRequestQuery(
 	db *gorm.DB,
-	tgMsg *tgbotapi.Message,
+	queryType model.Type,
 	chat *model.Chat,
 	booking *model.Booking,
-	queryType model.Type,
 ) error {
-	result := db.Transaction(func(tx *gorm.DB) error {
-		query := model.RequestQuery{
-			Status: model.StatusOngoing,
-			Type:   queryType,
-			ChatID: chat.ID,
-		}
+	query := model.RequestQuery{
+		Status: model.StatusOngoing,
+		Type:   queryType,
+		ChatID: chat.ID,
+	}
 
-		if booking != nil {
-			query.BookingID = &booking.ID
-		}
+	if booking != nil {
+		query.BookingID = &booking.ID
+	}
 
-		if err := requestquery.Create(db, &query); err != nil {
-			return err
-		}
+	if err := requestquery.Create(db, &query); err != nil {
+		return err
+	}
 
-		msg := model.Message{
-			TelegramMessageId: int64(tgMsg.MessageID),
-			By:                model.ByGuest,
-			MessageBody:       tgMsg.Text,
-			Timestamp:         tgMsg.Time(),
-			RequestQueryId:    query.ID,
-		}
+	return nil
+}
 
-		if err := message.Create(db, &msg); err != nil {
-			return err
-		}
+func sendTelegramMessage(
+	bot *tgbotapi.BotAPI,
+	prompt *tgbotapi.Message,
+	content string,
+) (*tgbotapi.Message, error) {
+	response := tgbotapi.NewMessage(prompt.Chat.ID, content)
 
-		return nil
-	})
+	if prompt != nil {
+		response.ReplyToMessageID = prompt.MessageID
+	}
 
-	return result
+	msg, err := bot.Send(response)
+	if err != nil {
+		return nil, err
+	}
+
+	return &msg, nil
+}
+
+func broadcastMessage(hub *ws.Hub, msg *model.Message, by model.By) error {
+	msgView := viewmodel.BaseMessageView{
+		TelegramMessageId: msg.TelegramMessageId,
+		By:                string(by),
+		MessageBody:       msg.MessageBody,
+		Timestamp:         msg.Timestamp.Format(time.RFC3339),
+		RequestQueryId:    msg.RequestQueryId,
+	}
+
+	msgStruct := api.WebSocketMessage{
+		Type: api.MessageReceivedType,
+		Data: msgView,
+	}
+
+	msgBytes, err := json.Marshal(msgStruct)
+	if err != nil {
+		return err
+	}
+
+	hub.Broadcast <- msgBytes
+	return nil
 }

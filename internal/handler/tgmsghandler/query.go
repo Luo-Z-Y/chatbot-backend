@@ -5,6 +5,7 @@ import (
 	"backend/internal/dataaccess/chat"
 	"backend/internal/database"
 	"backend/internal/model"
+	"backend/pkg/error/internalerror"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
@@ -21,14 +22,20 @@ func HandleQueryCommand(msg *tgbotapi.Message) (string, error) {
 
 	chat, err := chat.ReadByTgChatID(db, tgChatID)
 	if err != nil {
-		return NoChatFoundResponse, err
+		if internalerror.IsRecordNotFoundError(err) {
+			return NoChatFoundResponse, nil
+		}
+		return "", err
 	}
 
-	bk, _ := booking.ReadByChatID(db, chat.ID)
-
-	if err := createRequestQueryTransaction(db, msg, chat, bk, model.TypeQuery); err != nil {
-		return "An error occurred while creating a new query", err
+	bk, err := booking.ReadByChatID(db, chat.ID)
+	if err != nil && !internalerror.IsRecordNotFoundError(err) {
+		return "", err
 	}
 
-	return "New query created", nil
+	if err := createRequestQuery(db, model.TypeQuery, chat, bk); err != nil {
+		return "", err
+	}
+
+	return QueryCreatedResponse, nil
 }

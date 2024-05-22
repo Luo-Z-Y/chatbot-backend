@@ -3,6 +3,7 @@ package tgmsghandler
 import (
 	"backend/internal/dataaccess/chat"
 	"backend/internal/database"
+	"backend/pkg/error/internalerror"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
@@ -13,7 +14,8 @@ const (
 )
 
 const (
-	NoChatFoundResponse = "Chat not found, please start a new chat with /" + StartCmdWord
+	NoChatFoundResponse  = "Chat not found, please start a new chat with /" + StartCmdWord
+	QueryCreatedResponse = "New query created, please wait for a response"
 )
 
 func HandleAskCommand(msg *tgbotapi.Message) (string, error) {
@@ -23,15 +25,18 @@ func HandleAskCommand(msg *tgbotapi.Message) (string, error) {
 
 	chat, err := chat.ReadByTgChatID(db, tgChatID)
 	if err != nil {
-		return NoChatFoundResponse, err
+		if internalerror.IsRecordNotFoundError(err) {
+			return NoChatFoundResponse, nil
+		}
+		return "", err
 	}
 
 	// --- Perform query to AI to determine the type of query --- //
 	queryType := _tempRandomType()
 
-	if err := createRequestQueryTransaction(db, msg, chat, nil, queryType); err != nil {
-		return "An error occurred while creating a new query", err
+	if err := createRequestQuery(db, queryType, chat, nil); err != nil {
+		return "", err
 	}
 
-	return "New query created", nil
+	return QueryCreatedResponse, nil
 }
