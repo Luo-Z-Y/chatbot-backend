@@ -42,15 +42,13 @@ func handleUpdates(bot *tgbotapi.BotAPI, hub *ws.Hub, updates tgbotapi.UpdatesCh
 	// At most 1 field in an update will be set to a non-nil value
 	// https://go-telegram-bot-api.dev/getting-started/important-notes
 	for update := range updates {
-		if update.Message == nil {
-			continue
+		if update.Message != nil {
+			go dispatchMessageHandler(bot, hub, update.Message)
 		}
-
-		go dispatchHandler(bot, hub, update.Message)
 	}
 }
 
-func dispatchHandler(bot *tgbotapi.BotAPI, hub *ws.Hub, msg *tgbotapi.Message) {
+func dispatchMessageHandler(bot *tgbotapi.BotAPI, hub *ws.Hub, msg *tgbotapi.Message) {
 	var handler TelegramHandler
 
 	if msg.IsCommand() {

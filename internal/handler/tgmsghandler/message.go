@@ -9,17 +9,17 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-func HandleMessage(bot *tgbotapi.BotAPI, hub *ws.Hub, tgMsg *tgbotapi.Message) error {
+func HandleMessage(bot *tgbotapi.BotAPI, hub *ws.Hub, msg *tgbotapi.Message) error {
 	db := database.GetDb()
 
-	msgModel, err := saveTgMessageToDB(db, tgMsg, model.ByGuest)
+	msgModel, err := saveTgMessageToDB(db, msg, model.ByGuest)
 	if err != nil {
 		if internalerror.IsChatNotFoundError(err) {
-			_, err := SendTelegramMessage(bot, tgMsg, NoChatFoundResponse)
+			_, err := SendTelegramMessage(bot, msg, NoChatFoundResponse)
 			return err
 		}
 		if internalerror.IsRequestQueryNotFoundError(err) {
-			_, err := SendTelegramMessage(bot, tgMsg, NoQueryFoundResponse)
+			_, err := SendTelegramMessage(bot, msg, NoQueryFoundResponse)
 			return err
 		}
 		return err
@@ -29,11 +29,24 @@ func HandleMessage(bot *tgbotapi.BotAPI, hub *ws.Hub, tgMsg *tgbotapi.Message) e
 		return err
 	}
 
-	res, err := getAIResponse(db, tgMsg.Chat.ID)
+	aiResponse, err := getAIResponse(db, msg.Chat.ID)
 	if err != nil {
 		return err
 	}
 
-	_, err = SendTelegramMessage(bot, tgMsg, res)
-	return err
+	aiReplyMsg, err := SendTelegramMessage(bot, msg, aiResponse)
+	if err != nil {
+		return err
+	}
+
+	msgModel, err = saveTgMessageToDB(db, aiReplyMsg, model.ByBot)
+	if err != nil {
+		return err
+	}
+
+	if err := broadcastMessage(hub, msgModel); err != nil {
+		return err
+	}
+
+	return nil
 }
