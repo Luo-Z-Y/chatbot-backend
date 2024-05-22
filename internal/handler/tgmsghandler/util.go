@@ -97,11 +97,12 @@ func sendTelegramMessage(
 	prompt *tgbotapi.Message,
 	content string,
 ) (*tgbotapi.Message, error) {
-	response := tgbotapi.NewMessage(prompt.Chat.ID, content)
-
-	if prompt != nil {
-		response.ReplyToMessageID = prompt.MessageID
+	if prompt == nil || prompt.Chat == nil {
+		return nil, errors.New("Bad prompt message")
 	}
+
+	response := tgbotapi.NewMessage(prompt.Chat.ID, content)
+	response.ReplyToMessageID = prompt.MessageID
 
 	msg, err := bot.Send(response)
 	if err != nil {
