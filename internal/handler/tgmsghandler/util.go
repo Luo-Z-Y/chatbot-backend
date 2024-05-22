@@ -121,18 +121,10 @@ func SendTelegramMessage(
 	return &msg, nil
 }
 
-func broadcastMessage(hub *ws.Hub, msg *model.Message) error {
-	msgView := viewmodel.BaseMessageView{
-		TelegramMessageId: msg.TelegramMessageID,
-		By:                string(msg.By),
-		MessageBody:       msg.MessageBody,
-		Timestamp:         msg.Timestamp.Format(time.RFC3339),
-		RequestQueryId:    msg.RequestQueryId,
-	}
-
+func broadcast(hub *ws.Hub, t string, v any) error {
 	msgStruct := api.WebSocketMessage{
-		Type: api.MessageReceivedType,
-		Data: msgView,
+		Type: t,
+		Data: v,
 	}
 
 	msgBytes, err := json.Marshal(msgStruct)
@@ -144,13 +136,34 @@ func broadcastMessage(hub *ws.Hub, msg *model.Message) error {
 	return nil
 }
 
-func broadcastDanglingMessage(hub *ws.Hub, msg *tgbotapi.Message, by model.By) error {
-	msgModel := &model.Message{
-		TelegramMessageID: int64(msg.MessageID),
-		By:                by,
-		Timestamp:         msg.Time(),
-		MessageBody:       msg.Text,
+func broadcastMessage(hub *ws.Hub, msg *model.Message, chatID uint) error {
+	msgView := viewmodel.MessageWebSocketView{
+		BaseMessageView: viewmodel.BaseMessageView{
+			TelegramMessageId: msg.TelegramMessageID,
+			By:                string(msg.By),
+			MessageBody:       msg.MessageBody,
+			Timestamp:         msg.Timestamp.Format(time.RFC3339),
+			RequestQueryId:    msg.RequestQueryId,
+		},
+		ChatID: chatID,
 	}
 
-	return broadcastMessage(hub, msgModel)
+	if err := broadcast(hub, api.MessageReceivedType, msgView); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func broadcastAuthRequest(hub *ws.Hub, chat *model.Chat, cred string) error {
+	tgAuthView := viewmodel.TgAuthView{
+		ChatID:      chat.ID,
+		Credentials: cred,
+	}
+
+	if err := broadcast(hub, api.AuthType, tgAuthView); err != nil {
+		return err
+	}
+
+	return nil
 }

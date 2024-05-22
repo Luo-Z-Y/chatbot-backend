@@ -1,7 +1,6 @@
 package tgmsghandler
 
 import (
-	"backend/internal/model"
 	"backend/internal/ws"
 	"fmt"
 
@@ -26,16 +25,6 @@ var helpMsg = fmt.Sprintf(
 )
 
 func HandleHelpCommand(bot *tgbotapi.BotAPI, hub *ws.Hub, msg *tgbotapi.Message) error {
-	// Since all messages requires a non-null requestquery, and users may use /help before starting a chat,
-	// We cannot save this message to the database but only broadcast it to the websocket hub.
-	if err := broadcastDanglingMessage(hub, msg, model.ByGuest); err != nil {
-		return err
-	}
-
-	res, err := SendTelegramMessage(bot, msg, helpMsg)
-	if err != nil {
-		return err
-	}
-
-	return broadcastDanglingMessage(hub, res, model.ByBot)
+	_, err := SendTelegramMessage(bot, msg, helpMsg)
+	return err
 }

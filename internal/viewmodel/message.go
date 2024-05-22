@@ -7,10 +7,15 @@ type BaseMessageView struct {
 	Timestamp         string    `json:"timestamp"`
 	HotelStaffId      *uint     `json:"hotel_staff_id,omitempty"`
 	HotelStaff        *UserView `json:"hotel_staff,omitempty"`
-	RequestQueryId    uint      `json:"request_query_id"`
+	RequestQueryId    uint      `json:"request_query_id,omitempty"`
 }
 
 type MessageView struct {
 	BaseMessageView
 	RequestQuery BaseRequestQueryView `json:"request_query"`
+}
+
+type MessageWebSocketView struct {
+	BaseMessageView
+	ChatID uint `json:"chat_id,omitempty"`
 }

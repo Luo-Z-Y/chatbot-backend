@@ -48,7 +48,7 @@ func HandleAskCommand(bot *tgbotapi.BotAPI, hub *ws.Hub, msg *tgbotapi.Message) 
 		return err
 	}
 
-	if err := broadcastMessage(hub, msgModel); err != nil {
+	if err := broadcastMessage(hub, msgModel, chat.ID); err != nil {
 		return err
 	}
 
@@ -67,7 +67,7 @@ func HandleAskCommand(bot *tgbotapi.BotAPI, hub *ws.Hub, msg *tgbotapi.Message) 
 		return err
 	}
 
-	if err := broadcastMessage(hub, msgModel); err != nil {
+	if err := broadcastMessage(hub, msgModel, chat.ID); err != nil {
 		return err
 	}
 
