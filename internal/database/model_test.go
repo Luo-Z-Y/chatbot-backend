@@ -61,7 +61,7 @@ func TestCreateMessage(t *testing.T) {
 
 		query, user := createUserChatQuery(t, db)
 		message := model.Message{
-			TelegramMessageId: 1,
+			TelegramMessageID: 1,
 			By:                model.ByStaff,
 			MessageBody:       "very cool message",
 			Timestamp:         time.Now(),
@@ -73,7 +73,7 @@ func TestCreateMessage(t *testing.T) {
 		// Association example
 		var queryStaff model.User
 		db.Preload("Messages").First(&queryStaff, user.ID)
-		if len(queryStaff.Messages) != 1 || queryStaff.Messages[0].TelegramMessageId != 1 {
+		if len(queryStaff.Messages) != 1 || queryStaff.Messages[0].TelegramMessageID != 1 {
 			t.Error("Message in query staff is not correct")
 		}
 	})
@@ -84,7 +84,7 @@ func TestCreateMessage(t *testing.T) {
 
 		query, _ := createUserChatQuery(t, db)
 		message := model.Message{
-			TelegramMessageId: 1,
+			TelegramMessageID: 1,
 			By:                model.ByBot,
 			MessageBody:       "very cool message",
 			Timestamp:         time.Now(),

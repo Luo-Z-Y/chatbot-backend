@@ -32,7 +32,7 @@ func HandleMessage(bot *tgbotapi.BotAPI, hub *ws.Hub, tgMsg *tgbotapi.Message) e
 		return err
 	}
 
-	if err := broadcastMessage(hub, msgModel, model.ByGuest); err != nil {
+	if err := broadcastMessage(hub, msgModel); err != nil {
 		return err
 	}
 

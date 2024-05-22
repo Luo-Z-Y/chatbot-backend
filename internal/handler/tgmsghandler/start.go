@@ -4,6 +4,7 @@ import (
 	"backend/internal/dataaccess/chat"
 	"backend/internal/database"
 	"backend/internal/model"
+	"backend/internal/ws"
 	"fmt"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -26,7 +27,8 @@ var (
 	)
 )
 
-func HandleStartCommand(msg *tgbotapi.Message) (string, error) {
+func HandleStartCommand(bot *tgbotapi.BotAPI, hub *ws.Hub, msg *tgbotapi.Message) error {
+	// There is no need to broadcast the chat creation message to the since the chat is just created
 	db := database.GetDb()
 
 	tgChat := model.Chat{
@@ -34,8 +36,10 @@ func HandleStartCommand(msg *tgbotapi.Message) (string, error) {
 	}
 
 	if err := chat.Create(db, &tgChat); err != nil {
-		return ChatAlreadyExistsResponse, nil
+		_, err = sendTelegramMessage(bot, msg, ChatAlreadyExistsResponse)
+		return err
 	}
 
-	return ChatCreatedResponse, nil
+	_, err := sendTelegramMessage(bot, msg, ChatCreatedResponse)
+	return err
 }

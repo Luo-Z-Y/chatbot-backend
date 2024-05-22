@@ -4,6 +4,7 @@ import (
 	"backend/internal/api"
 	"backend/internal/dataaccess/chat"
 	"backend/internal/database"
+	"backend/internal/model"
 	"backend/internal/viewmodel"
 	"backend/internal/ws"
 	"backend/pkg/error/internalerror"
@@ -26,41 +27,39 @@ var (
 	CredentialsNotFound = errors.New("Credentials not found")
 )
 
-func HandleAuthCommand(msg *tgbotapi.Message, hub *ws.Hub) (string, error) {
-	tgChatID := msg.Chat.ID
+func HandleAuthCommand(bot *tgbotapi.BotAPI, hub *ws.Hub, msg *tgbotapi.Message) error {
+	// Since all messages requires a non-null requestquery, and users may use /auth before starting a query,
+	// We cannot save this message to the database but only broadcast it to the websocket hub.
+	if err := broadcastDanglingMessage(hub, msg, model.ByGuest); err != nil {
+		return err
+	}
 
 	db := database.GetDb()
 
-	chat, err := chat.ReadByTgChatID(db, tgChatID)
+	chat, err := chat.ReadByTgChatID(db, msg.Chat.ID)
 	if err != nil {
 		if internalerror.IsRecordNotFoundError(err) {
-			return NoChatFoundResponse, nil
+			_, err := sendTelegramMessage(bot, msg, NoChatFoundResponse)
+			return err
 		}
-		return "", err
+		return err
 	}
 
 	cred, err := extractCredentials(msg.Text)
 	if err != nil {
-		return err.Error(), err
+		return err
 	}
 
-	tgAuthView := viewmodel.TgAuthView{
-		ChatID:      chat.ID,
-		Credentials: cred,
+	if err := broadcastAuthRequest(hub, chat, cred); err != nil {
+		return err
 	}
 
-	msgStruct := api.WebSocketMessage{
-		Type: api.AuthType,
-		Data: tgAuthView,
-	}
-
-	msgBytes, err := json.Marshal(msgStruct)
+	res, err := sendTelegramMessage(bot, msg, AuthRequestMadeResponse)
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	hub.Broadcast <- msgBytes
-	return AuthRequestMadeResponse, nil
+	return broadcastDanglingMessage(hub, res, model.ByBot)
 }
 
 // Commands are prefixed with a slash (/cmd args)
@@ -75,4 +74,24 @@ func extractCredentials(text string) (string, error) {
 	}
 
 	return "", CredentialsNotFound
+}
+
+func broadcastAuthRequest(hub *ws.Hub, chat *model.Chat, cred string) error {
+	tgAuthView := viewmodel.TgAuthView{
+		ChatID:      chat.ID,
+		Credentials: cred,
+	}
+
+	msgStruct := api.WebSocketMessage{
+		Type: api.AuthType,
+		Data: tgAuthView,
+	}
+
+	msgBytes, err := json.Marshal(msgStruct)
+	if err != nil {
+		return err
+	}
+
+	hub.Broadcast <- msgBytes
+	return nil
 }

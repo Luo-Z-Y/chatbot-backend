@@ -5,6 +5,7 @@ import (
 	"backend/internal/dataaccess/chat"
 	"backend/internal/database"
 	"backend/internal/model"
+	"backend/internal/ws"
 	"backend/pkg/error/externalerror"
 	"backend/pkg/error/internalerror"
 
@@ -21,30 +22,58 @@ const (
 	RequestCreatedResponse    = "New request created, please wait for a response"
 )
 
-func HandleRequestCommand(msg *tgbotapi.Message) (string, error) {
-	tgChatID := msg.Chat.ID
-
+func HandleRequestCommand(bot *tgbotapi.BotAPI, hub *ws.Hub, msg *tgbotapi.Message) error {
 	db := database.GetDb()
 
-	chat, err := chat.ReadByTgChatID(db, tgChatID)
+	chat, err := chat.ReadByTgChatID(db, msg.Chat.ID)
 	if err != nil {
 		if internalerror.IsRecordNotFoundError(err) {
-			return NoChatFoundResponse, nil
+			_, err := sendTelegramMessage(bot, msg, NoChatFoundResponse)
+			return err
 		}
-		return "", err
+		return err
 	}
 
 	bk, err := booking.ReadByChatID(db, chat.ID)
 	if err != nil && !internalerror.IsRecordNotFoundError(err) {
-		return "", err
+		return err
 	}
 
 	if err := createRequestQuery(db, model.TypeRequest, chat, bk); err != nil {
 		if externalerror.IsAuthRequiredError(err) {
-			return AuthRequiredErrorResponse, err
+			_, err := sendTelegramMessage(bot, msg, AuthRequiredErrorResponse)
+			return err
 		}
-		return "", err
+		return err
 	}
 
-	return RequestCreatedResponse, nil
+	msgModel, err := saveTgMessageToDB(db, msg, model.ByGuest)
+	if err != nil {
+		return err
+	}
+
+	if err := broadcastMessage(hub, msgModel); err != nil {
+		return err
+	}
+
+	aiResponse, err := getAIResponse(db, msg.Chat.ID)
+	if err != nil {
+		return err
+	}
+
+	aiReplyMsg, err := sendTelegramMessage(bot, msg, aiResponse)
+	if err != nil {
+		return err
+	}
+
+	msgModel, err = saveTgMessageToDB(db, aiReplyMsg, model.ByBot)
+	if err != nil {
+		return err
+	}
+
+	if err := broadcastMessage(hub, msgModel); err != nil {
+		return err
+	}
+
+	return nil
 }

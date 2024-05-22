@@ -38,6 +38,7 @@ func _tempRandomType() model.Type {
 	}
 }
 
+// todo: Implement AI response
 func getAIResponse(_ *gorm.DB, _ int64) (string, error) {
 	response := "Placeholder AI response"
 	return response, nil
@@ -55,7 +56,7 @@ func saveTgMessageToDB(db *gorm.DB, msg *tgbotapi.Message, by model.By) (*model.
 	}
 
 	msgModel := model.Message{
-		TelegramMessageId: chat.TelegramChatId,
+		TelegramMessageID: int64(msg.MessageID),
 		By:                by,
 		MessageBody:       msg.Text,
 		Timestamp:         time.Now(),
@@ -112,10 +113,10 @@ func sendTelegramMessage(
 	return &msg, nil
 }
 
-func broadcastMessage(hub *ws.Hub, msg *model.Message, by model.By) error {
+func broadcastMessage(hub *ws.Hub, msg *model.Message) error {
 	msgView := viewmodel.BaseMessageView{
-		TelegramMessageId: msg.TelegramMessageId,
-		By:                string(by),
+		TelegramMessageId: msg.TelegramMessageID,
+		By:                string(msg.By),
 		MessageBody:       msg.MessageBody,
 		Timestamp:         msg.Timestamp.Format(time.RFC3339),
 		RequestQueryId:    msg.RequestQueryId,
@@ -133,4 +134,15 @@ func broadcastMessage(hub *ws.Hub, msg *model.Message, by model.By) error {
 
 	hub.Broadcast <- msgBytes
 	return nil
+}
+
+func broadcastDanglingMessage(hub *ws.Hub, msg *tgbotapi.Message, by model.By) error {
+	msgModel := &model.Message{
+		TelegramMessageID: int64(msg.MessageID),
+		By:                by,
+		Timestamp:         msg.Time(),
+		MessageBody:       msg.Text,
+	}
+
+	return broadcastMessage(hub, msgModel)
 }
