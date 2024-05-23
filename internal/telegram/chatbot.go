@@ -70,8 +70,7 @@ func dispatchMessageHandler(bot *tgbotapi.BotAPI, hub *ws.Hub, msg *tgbotapi.Mes
 		handler = tgmessagehandler.HandleMessage
 	}
 
-	err := handler(bot, hub, msg)
-	if err != nil {
+	if err := handler(bot, hub, msg); err != nil {
 		_, _ = tgmessagehandler.SendTelegramMessage(bot, msg, err.Error())
 	}
 }
