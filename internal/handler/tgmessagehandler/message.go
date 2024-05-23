@@ -1,7 +1,6 @@
-package tgmsghandler
+package tgmessagehandler
 
 import (
-	"backend/internal/dataaccess/booking"
 	"backend/internal/dataaccess/chat"
 	"backend/internal/database"
 	"backend/internal/model"
@@ -11,12 +10,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-const (
-	QueryCmdWord = "query"
-	QueryCmdDesc = "Make a simple query regarding the hotel"
-)
-
-func HandleQueryCommand(bot *tgbotapi.BotAPI, hub *ws.Hub, msg *tgbotapi.Message) error {
+func HandleMessage(bot *tgbotapi.BotAPI, hub *ws.Hub, msg *tgbotapi.Message) error {
 	db := database.GetDb()
 
 	chat, err := chat.ReadByTgChatID(db, msg.Chat.ID)
@@ -28,17 +22,12 @@ func HandleQueryCommand(bot *tgbotapi.BotAPI, hub *ws.Hub, msg *tgbotapi.Message
 		return err
 	}
 
-	bk, err := booking.ReadByChatID(db, chat.ID)
-	if err != nil && !internalerror.IsRecordNotFoundError(err) {
-		return err
-	}
-
-	if err := createRequestQuery(db, model.TypeQuery, chat, bk); err != nil {
-		return err
-	}
-
 	msgModel, err := saveTgMessageToDB(db, msg, model.ByGuest)
 	if err != nil {
+		if internalerror.IsRequestQueryNotFoundError(err) {
+			_, err := SendTelegramMessage(bot, msg, NoQueryFoundResponse)
+			return err
+		}
 		return err
 	}
 

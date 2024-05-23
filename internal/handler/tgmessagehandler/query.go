@@ -1,26 +1,22 @@
-package tgmsghandler
+package tgmessagehandler
 
 import (
+	"backend/internal/dataaccess/booking"
 	"backend/internal/dataaccess/chat"
 	"backend/internal/database"
 	"backend/internal/model"
 	"backend/internal/ws"
-	"backend/pkg/error/externalerror"
 	"backend/pkg/error/internalerror"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 const (
-	AskCmdWord = "ask"
-	AskCmdDesc = "Ask anything, and we will try to help you"
+	QueryCmdWord = "query"
+	QueryCmdDesc = "Make a simple query regarding the hotel"
 )
 
-const (
-	NoChatFoundResponse = "Chat not found, please start a new chat with /" + StartCmdWord
-)
-
-func HandleAskCommand(bot *tgbotapi.BotAPI, hub *ws.Hub, msg *tgbotapi.Message) error {
+func HandleQueryCommand(bot *tgbotapi.BotAPI, hub *ws.Hub, msg *tgbotapi.Message) error {
 	db := database.GetDb()
 
 	chat, err := chat.ReadByTgChatID(db, msg.Chat.ID)
@@ -32,14 +28,12 @@ func HandleAskCommand(bot *tgbotapi.BotAPI, hub *ws.Hub, msg *tgbotapi.Message) 
 		return err
 	}
 
-	// todo: Perform query to AI to determine the type of query
-	queryType := _tempRandomType()
+	bk, err := booking.ReadByChatID(db, chat.ID)
+	if err != nil && !internalerror.IsRecordNotFoundError(err) {
+		return err
+	}
 
-	if err := createRequestQuery(db, queryType, chat, nil); err != nil {
-		if externalerror.IsAuthRequiredError(err) {
-			_, err := SendTelegramMessage(bot, msg, AuthRequiredErrorResponse)
-			return err
-		}
+	if err := createRequestQuery(db, model.TypeQuery, chat, bk); err != nil {
 		return err
 	}
 

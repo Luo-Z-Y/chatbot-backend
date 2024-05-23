@@ -2,13 +2,11 @@ package telegram
 
 import (
 	"backend/internal/configs"
-	"backend/internal/handler/tgmsghandler"
+	"backend/internal/handler/tgmessagehandler"
 	"backend/internal/ws"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
-
-type TelegramHandler = func(bot *tgbotapi.BotAPI, hub *ws.Hub, msg *tgbotapi.Message) error
 
 var botAPI *tgbotapi.BotAPI
 
@@ -49,29 +47,31 @@ func handleUpdates(bot *tgbotapi.BotAPI, hub *ws.Hub, updates tgbotapi.UpdatesCh
 }
 
 func dispatchMessageHandler(bot *tgbotapi.BotAPI, hub *ws.Hub, msg *tgbotapi.Message) {
-	var handler TelegramHandler
+	var handler tgmessagehandler.Handler
 
 	if msg.IsCommand() {
 		switch msg.Command() {
-		case tgmsghandler.HelpCmdWord:
-			handler = tgmsghandler.HandleHelpCommand
-		case tgmsghandler.AuthCmdWord:
-			handler = tgmsghandler.HandleAuthCommand
-		case tgmsghandler.StartCmdWord:
-			handler = tgmsghandler.HandleStartCommand
-		case tgmsghandler.AskCmdWord:
-			handler = tgmsghandler.HandleAskCommand
-		case tgmsghandler.QueryCmdWord:
-			handler = tgmsghandler.HandleQueryCommand
-		case tgmsghandler.RequestCmdWord:
-			handler = tgmsghandler.HandleRequestCommand
+		case tgmessagehandler.HelpCmdWord:
+			handler = tgmessagehandler.HandleHelpCommand
+		case tgmessagehandler.AuthCmdWord:
+			handler = tgmessagehandler.HandleAuthCommand
+		case tgmessagehandler.StartCmdWord:
+			handler = tgmessagehandler.HandleStartCommand
+		case tgmessagehandler.AskCmdWord:
+			handler = tgmessagehandler.HandleAskCommand
+		case tgmessagehandler.QueryCmdWord:
+			handler = tgmessagehandler.HandleQueryCommand
+		case tgmessagehandler.RequestCmdWord:
+			handler = tgmessagehandler.HandleRequestCommand
+		default:
+			handler = tgmessagehandler.HandleUnknownCommand
 		}
 	} else {
-		handler = tgmsghandler.HandleMessage
+		handler = tgmessagehandler.HandleMessage
 	}
 
 	err := handler(bot, hub, msg)
 	if err != nil {
-		_, _ = tgmsghandler.SendTelegramMessage(bot, msg, err.Error())
+		_, _ = tgmessagehandler.SendTelegramMessage(bot, msg, err.Error())
 	}
 }

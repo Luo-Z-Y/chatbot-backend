@@ -1,4 +1,4 @@
-package tgmsghandler
+package tgmessagehandler
 
 import (
 	"backend/internal/dataaccess/chat"
