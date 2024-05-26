@@ -1,0 +1,6 @@
+{
+  "hooks": {
+    "pre-commit": "gofmt -s -w . && goimports && go vet ./...",
+    "pre-push": "golangci-lint run && go build -o ./bin/main ./cmd/server/main.go"
+  }
+}

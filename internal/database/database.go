@@ -2,6 +2,7 @@ package database
 
 import (
 	"backend/internal/configs"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
