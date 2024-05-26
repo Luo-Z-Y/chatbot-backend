@@ -22,8 +22,8 @@ const (
 
 var (
 	SuccessChatCreationResponse = fmt.Sprintf(
-		"New chat created, you can now start a new query using /%s, /%s, or /%s",
-		AskCmdWord, QueryCmdWord, RequestCmdWord,
+		"New chat created, you can now start a new query using  /%s, or /%s",
+		QueryCmdWord, RequestCmdWord,
 	)
 )
 

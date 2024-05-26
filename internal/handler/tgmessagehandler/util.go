@@ -21,26 +21,27 @@ import (
 
 var (
 	NoQueryFoundResponse = fmt.Sprintf(
-		"Please start a new query first. Use /%s, /%s, or /%s",
-		AskCmdWord, QueryCmdWord, RequestCmdWord,
+		"Please start a new query first. Use /%s, or /%s",
+		QueryCmdWord, RequestCmdWord,
 	)
 	NoQueryFoundErr = internalerror.RequestQueryNotFoundError{}
 	NoChatFoundErr  = internalerror.ChatNotFoundError{}
 )
 
-func _tempRandomType() model.Type {
-	decision := rand.Intn(2)
+// TODO: Implement AI response
+func getAICategorisation(_ *gorm.DB, _ string) (model.Type, error) {
+	decision := rand.Intn(3)
 	switch decision {
 	case 0:
-		return model.TypeQuery
+		return model.TypeQuery, nil
 	case 1:
-		return model.TypeRequest
+		return model.TypeRequest, nil
 	default:
-		return model.TypeUnknown
+		return model.TypeUnknown, nil
 	}
 }
 
-// todo: Implement AI response
+// TODO: Implement AI response
 func getAIResponse(_ *gorm.DB, _ int64) (string, error) {
 	response := "Placeholder AI response"
 	return response, nil
@@ -78,6 +79,7 @@ func saveTgMessageToDB(db *gorm.DB, msg *tgbotapi.Message, by model.By) (*model.
 	return &msgModel, nil
 }
 
+// Booking is nillable
 func createRequestQuery(
 	db *gorm.DB,
 	queryType model.Type,

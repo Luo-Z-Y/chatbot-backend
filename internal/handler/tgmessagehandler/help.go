@@ -14,12 +14,11 @@ const (
 )
 
 var helpMsg = fmt.Sprintf(
-	"%s\n\n/%s - %s\n/%s - %s\n/%s - %s\n/%s - %s\n/%s - %s\n/%s - %s",
+	"%s\n\n/%s - %s\n/%s - %s\n/%s - %s\n/%s - %s\n/%s - %s",
 	HelpIntro,
 	HelpCmdWord, HelpCmdDesc,
 	AuthCmdWord, AuthCmdDesc,
 	StartCmdWord, StartCmdDesc,
-	AskCmdWord, AskCmdDesc,
 	QueryCmdWord, QueryCmdDesc,
 	RequestCmdWord, RequestCmdDesc,
 )
