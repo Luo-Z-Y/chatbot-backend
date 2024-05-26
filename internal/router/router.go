@@ -69,7 +69,10 @@ func Setup(cfg *configs.Config, hub *ws.Hub) *echo.Echo {
 		}
 	})
 
-	// Routes needing authentication
+	// Routes needing, authentication
+	chatGroup := g.Group("/chats")
+	ChatRoutes(chatGroup)
+
 	g.GET("/current-user", authhandler.GetUser)
 
 	tg := g.Group("/tg")
