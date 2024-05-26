@@ -5,23 +5,23 @@ import (
 )
 
 type BaseMessageView struct {
-	TelegramMessageID int64     `json:"telegram_message_id"`
+	TelegramMessageID int64     `json:"telegramMessageId"`
 	By                string    `json:"by"`
-	MessageBody       string    `json:"message_body"`
+	MessageBody       string    `json:"messageBody"`
 	Timestamp         string    `json:"timestamp"`
-	HotelStaffID      *uint     `json:"hotel_staff_id,omitempty"`
-	HotelStaff        *UserView `json:"hotel_staff,omitempty"`
-	RequestQueryID    uint      `json:"request_query_id,omitempty"`
+	HotelStaffID      *uint     `json:"hotelStaffId,omitempty"`
+	HotelStaff        *UserView `json:"hotelStaff,omitempty"`
+	RequestQueryID    uint      `json:"requestQueryId,omitempty"`
 }
 
 type MessageView struct {
 	BaseMessageView
-	RequestQuery *BaseRequestQueryView `json:"request_query,omitempty"`
+	RequestQuery *BaseRequestQueryView `json:"requestQuery,omitempty"`
 }
 
 type MessageWebSocketView struct {
 	BaseMessageView
-	ChatID uint `json:"chat_id,omitempty"`
+	ChatID uint `json:"chatId,omitempty"`
 }
 
 func BaseMessageViewFrom(message *model.Message) BaseMessageView {

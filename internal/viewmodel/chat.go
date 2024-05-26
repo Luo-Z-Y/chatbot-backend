@@ -13,7 +13,7 @@ type ChatListView struct {
 }
 type ChatView struct {
 	BaseChatView
-	RequestQueries []RequestQueryView `json:"request_queries"`
+	RequestQueries []RequestQueryView `json:"requestQueries"`
 }
 
 func ChatListViewFrom(chats []model.Chat) ChatListView {
