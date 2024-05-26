@@ -88,7 +88,7 @@ func saveTgMessageToDB(db *gorm.DB, msg *tgbotapi.Message, by model.By) (*model.
 		By:                by,
 		MessageBody:       msg.Text,
 		Timestamp:         time.Now(),
-		RequestQueryId:    rqq.ID,
+		RequestQueryID:    rqq.ID,
 	}
 
 	if err := message.Create(db, &msgModel); err != nil {
@@ -160,11 +160,11 @@ func broadcast(hub *ws.Hub, t string, v any) error {
 func broadcastMessage(hub *ws.Hub, msg *model.Message, chatID uint) error {
 	msgView := viewmodel.MessageWebSocketView{
 		BaseMessageView: viewmodel.BaseMessageView{
-			TelegramMessageId: msg.TelegramMessageID,
+			TelegramMessageID: msg.TelegramMessageID,
 			By:                string(msg.By),
 			MessageBody:       msg.MessageBody,
 			Timestamp:         msg.Timestamp.Format(time.RFC3339),
-			RequestQueryId:    msg.RequestQueryId,
+			RequestQueryID:    msg.RequestQueryID,
 		},
 		ChatID: chatID,
 	}

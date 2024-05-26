@@ -9,8 +9,9 @@ import (
 type Chat struct {
 	gorm.Model
 	TelegramChatId int64 `gorm:"unique"`
-	Booking        *Booking
-	RequestQueries []RequestQuery
+
+	Booking        *Booking       `gorm:"->"`
+	RequestQueries []RequestQuery `gorm:"->;<-:create"`
 }
 
 func (c *Chat) Create(db *gorm.DB) error {

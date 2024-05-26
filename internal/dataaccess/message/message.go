@@ -23,7 +23,7 @@ func Create(db *gorm.DB, msg *model.Message) error {
 }
 
 func Update(db *gorm.DB, msg *model.Message) error {
-	if err := ensureRequestQueryExists(db, msg.RequestQueryId); err != nil {
+	if err := ensureRequestQueryExists(db, msg.RequestQueryID); err != nil {
 		return err
 	}
 

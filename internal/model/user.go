@@ -1,7 +1,6 @@
 package model
 
 import (
-	"backend/internal/viewmodel"
 	"errors"
 
 	"golang.org/x/crypto/bcrypt"
@@ -19,14 +18,8 @@ type User struct {
 	gorm.Model
 	Username          string `gorm:"unique"`
 	EncryptedPassword string
-	Messages          []Message `gorm:"foreignKey:HotelStaffId"`
+	Messages          []Message `gorm:"foreignKey:HotelStaffID"`
 	Role              Role
-}
-
-func (u *User) ToView() *viewmodel.UserView {
-	return &viewmodel.UserView{
-		ID: u.ID, Username: u.Username,
-	}
 }
 
 func (u *User) Create(db *gorm.DB) error {

@@ -21,10 +21,11 @@ type Message struct {
 	By                By
 	MessageBody       string
 	Timestamp         time.Time
-	HotelStaffId      *uint
-	HotelStaff        *User
-	RequestQueryId    uint
-	RequestQuery      *RequestQuery
+	HotelStaffID      *uint
+	RequestQueryID    uint
+
+	RequestQuery *RequestQuery `gorm:"->"`
+	HotelStaff   *User         `gorm:"->"`
 }
 
 func (m *Message) Create(db *gorm.DB) error {
