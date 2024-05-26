@@ -8,12 +8,12 @@ import (
 )
 
 func preloadListAssociations(db *gorm.DB) *gorm.DB {
-	return db.Model(&model.Chat{}).
+	return db.
 		Preload("Booking")
 }
 
 func preloadAssociations(db *gorm.DB) *gorm.DB {
-	return db.Model(&model.Chat{}).
+	return db.
 		Preload("Booking").
 		Preload("RequestQueries").
 		Preload("RequestQueries.Messages")
@@ -21,7 +21,8 @@ func preloadAssociations(db *gorm.DB) *gorm.DB {
 
 func List(db *gorm.DB) ([]model.Chat, error) {
 	var chats []model.Chat
-	result := preloadListAssociations(db).
+	result := db.Model(&model.Chat{}).
+		Scopes(preloadListAssociations).
 		Order("created_at desc").
 		Find(&chats)
 	if result.Error != nil {
@@ -33,7 +34,8 @@ func List(db *gorm.DB) ([]model.Chat, error) {
 
 func Read(db *gorm.DB, id uint) (*model.Chat, error) {
 	var chat model.Chat
-	result := preloadAssociations(db).
+	result := db.Model(&model.Chat{}).
+		Scopes(preloadAssociations).
 		Where("id = ?", id).
 		First(&chat, id)
 	if result.Error != nil {

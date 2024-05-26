@@ -1,9 +1,10 @@
 package chathandler
 
 import (
+	"backend/internal/api"
 	"backend/internal/dataaccess/chat"
 	"backend/internal/database"
-	"fmt"
+	"backend/internal/viewmodel"
 	"net/http"
 	"strconv"
 
@@ -17,7 +18,12 @@ func List(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Unable to get chats", err.Error())
 	}
 
-	return c.JSON(http.StatusOK, chats)
+	return c.JSON(
+		http.StatusOK,
+		api.Response{
+			Data: viewmodel.ChatListViewFrom(chats),
+		},
+	)
 }
 
 func Read(c echo.Context) error {
@@ -33,7 +39,5 @@ func Read(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Unable to get chat with id %d, %s", chatID, err.Error())
 	}
 
-
-	return c.JSON(http.StatusOK, api.Response{Data: })
-	return c.JSON(http.StatusOK, chats)
+	return c.JSON(http.StatusOK, api.Response{Data: viewmodel.ChatViewFrom(chat)})
 }
