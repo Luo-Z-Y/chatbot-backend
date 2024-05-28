@@ -17,14 +17,14 @@ const (
 
 type Message struct {
 	gorm.Model
-	TelegramMessageId int64
+	TelegramMessageID int64
 	By                By
 	MessageBody       string
 	Timestamp         time.Time
 	HotelStaffId      *uint
 	HotelStaff        *User
 	RequestQueryId    uint
-	RequestQuery      RequestQuery
+	RequestQuery      *RequestQuery
 }
 
 func (m *Message) Create(db *gorm.DB) error {
