@@ -6,6 +6,7 @@ import (
 	"backend/internal/ws"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/labstack/gommon/log"
 )
 
 var botAPI *tgbotapi.BotAPI
@@ -32,8 +33,26 @@ func StartChatbot(cfg *configs.Config, hub *ws.Hub) {
 	updateConfig := tgbotapi.NewUpdate(0)
 	updateConfig.Timeout = 30
 
+	setCommands(bot)
+
 	updates := bot.GetUpdatesChan(updateConfig)
 	handleUpdates(bot, hub, updates)
+}
+
+func setCommands(bot *tgbotapi.BotAPI) {
+	commandsConfig := tgbotapi.NewSetMyCommandsWithScopeAndLanguage(
+		tgbotapi.NewBotCommandScopeAllPrivateChats(),
+		"en",
+		tgbotapi.BotCommand{Command: tgmessagehandler.HelpCmdWord, Description: tgmessagehandler.HelpCmdDesc},
+		tgbotapi.BotCommand{Command: tgmessagehandler.AuthCmdWord, Description: tgmessagehandler.AuthCmdDesc},
+		tgbotapi.BotCommand{Command: tgmessagehandler.QueryCmdWord, Description: tgmessagehandler.QueryCmdDesc},
+		tgbotapi.BotCommand{Command: tgmessagehandler.RequestCmdWord, Description: tgmessagehandler.RequestCmdDesc},
+	)
+	msg, err := bot.Request(commandsConfig)
+	log.Info(msg)
+	if err != nil {
+		log.Fatalf("error setting commands: %s", err.Error())
+	}
 }
 
 func handleUpdates(bot *tgbotapi.BotAPI, hub *ws.Hub, updates tgbotapi.UpdatesChannel) {
