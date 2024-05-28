@@ -1,10 +1,8 @@
 package tgmessagehandler
 
 import (
-	"backend/internal/dataaccess/chat"
 	"backend/internal/database"
 	"backend/internal/ws"
-	"backend/pkg/error/internalerror"
 	"errors"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -26,12 +24,8 @@ var (
 func HandleAuthCommand(bot *tgbotapi.BotAPI, hub *ws.Hub, msg *tgbotapi.Message) error {
 	db := database.GetDb()
 
-	chat, err := chat.ReadByTgChatID(db, msg.Chat.ID)
+	chat, err := readChatByTgChatIDOrCreate(db, msg.Chat.ID)
 	if err != nil {
-		if internalerror.IsRecordNotFoundError(err) {
-			_, err := SendTelegramMessage(bot, msg, NoChatFoundResponse)
-			return err
-		}
 		return err
 	}
 

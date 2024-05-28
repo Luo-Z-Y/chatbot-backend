@@ -74,8 +74,6 @@ func dispatchMessageHandler(bot *tgbotapi.BotAPI, hub *ws.Hub, msg *tgbotapi.Mes
 			handler = tgmessagehandler.HandleHelpCommand
 		case tgmessagehandler.AuthCmdWord:
 			handler = tgmessagehandler.HandleAuthCommand
-		case tgmessagehandler.StartCmdWord:
-			handler = tgmessagehandler.HandleStartCommand
 		case tgmessagehandler.QueryCmdWord:
 			handler = tgmessagehandler.HandleQueryCommand
 		case tgmessagehandler.RequestCmdWord:

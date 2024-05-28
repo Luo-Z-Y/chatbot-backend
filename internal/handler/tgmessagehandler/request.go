@@ -2,7 +2,6 @@ package tgmessagehandler
 
 import (
 	"backend/internal/dataaccess/booking"
-	"backend/internal/dataaccess/chat"
 	"backend/internal/database"
 	"backend/internal/model"
 	"backend/internal/ws"
@@ -25,12 +24,8 @@ const (
 func HandleRequestCommand(bot *tgbotapi.BotAPI, hub *ws.Hub, msg *tgbotapi.Message) error {
 	db := database.GetDb()
 
-	chat, err := chat.ReadByTgChatID(db, msg.Chat.ID)
+	chat, err := readChatByTgChatIDOrCreate(db, msg.Chat.ID)
 	if err != nil {
-		if internalerror.IsRecordNotFoundError(err) {
-			_, err := SendTelegramMessage(bot, msg, NoChatFoundResponse)
-			return err
-		}
 		return err
 	}
 

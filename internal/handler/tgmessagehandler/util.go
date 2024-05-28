@@ -47,6 +47,25 @@ func getAIResponse(_ *gorm.DB, _ int64) (string, error) {
 	return response, nil
 }
 
+func readChatByTgChatIDOrCreate(db *gorm.DB, tgChatID int64) (*model.Chat, error) {
+	tgChat, err := chat.ReadByTgChatID(db, tgChatID)
+	if err != nil {
+		if internalerror.IsRecordNotFoundError(err) {
+			tgChat = &model.Chat{
+				TelegramChatId: tgChatID,
+			}
+
+			if err := chat.Create(db, tgChat); err != nil {
+				return nil, err
+			}
+		} else {
+			return nil, err
+		}
+	}
+
+	return tgChat, nil
+}
+
 func saveTgMessageToDB(db *gorm.DB, msg *tgbotapi.Message, by model.By) (*model.Message, error) {
 	chat, err := chat.ReadByTgChatID(db, msg.Chat.ID)
 	if err != nil {
