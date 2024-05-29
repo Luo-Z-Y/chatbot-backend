@@ -75,9 +75,10 @@
 
 1. Install development tools
 
-   - golangci-Lint: https://golangci-lint.run/welcome/install/
+   - golangci-lint: https://golangci-lint.run/welcome/install/
 
 2. Set up git hooks
+
    Assuming you are inside the project directory
 
    ```bash
