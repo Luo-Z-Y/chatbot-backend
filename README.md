@@ -58,6 +58,7 @@
    ```
 
 6. Run the migrations
+
    Keep the docker container from step 6 running and open a new terminal window
 
    ```bash
