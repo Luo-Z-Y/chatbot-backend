@@ -22,7 +22,7 @@
   sudo pacman -S docker docker-compose
   ```
 
-#### Development Environment Setup
+#### Running the server locally
 
 1. Fork and clone the repository
 
@@ -39,7 +39,7 @@
    cat .env.example >> .env
    ```
 
-   Set `TELEGRAM_TOKEN` to the token you got from the previous step
+   Set `TELEGRAM_TOKEN` in `.env` to the token you got from the previous step
 
 4. Build the Docker image
 
@@ -68,4 +68,17 @@
 
    ```bash
    go run cmd/migratedb/main.go
+   ```
+
+#### Development Environment
+
+1. Install development tools
+
+   - golangci-Lint: https://golangci-lint.run/welcome/install/
+
+2. Set up git hooks
+   Assuming you are inside the project directory
+
+   ```bash
+   golangci-lint init
    ```
