@@ -4,23 +4,23 @@
 
 #### Prerequisites
 
-1.  Go
+1.  Go installation
 
-    - Installation
-      - MacOS Homebrew installation: `brew install go`
-      - Windows and Debian-based Linux distros: [Official installation](https://go.dev/doc/install)
-      - Arch-based Linux distros: `sudo pacman -S go`
+    - MacOS Homebrew installation: `brew install go`
+    - Windows and Debian-based Linux distros: [Official installation](https://go.dev/doc/install)
+    - Arch-based Linux distros: `sudo pacman -S go`
+
     - `GOPATH` and `GOBIN` environment variable set up
       - Guide: [Go Wiki: Setting GOPATH](https://go.dev/wiki/SettingGOPATH)
 
-2.  Docker installed
+2.  Docker installation
 
-- Windows and MacOS: install [Docker Desktop](https://docs.docker.com/desktop/)
-- Debian-based Linux distros installation guide [here](https://docs.docker.com/engine/install/debian/)
-- Arch-based Linux distros installation:
-  ```bash
-  sudo pacman -S docker docker-compose
-  ```
+    - Windows and MacOS: install [Docker Desktop](https://docs.docker.com/desktop/)
+    - Debian-based Linux distros installation guide [here](https://docs.docker.com/engine/install/debian/)
+    - Arch-based Linux distros installation:
+      ```bash
+      sudo pacman -S docker docker-compose
+      ```
 
 #### Running the server locally
 
