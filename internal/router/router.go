@@ -3,6 +3,7 @@ package router
 import (
 	"backend/internal/configs"
 	"backend/internal/handler/authhandler"
+	"backend/internal/handler/bothandler"
 	"backend/internal/handler/websockethandler"
 	"backend/internal/util"
 	"backend/internal/ws"
@@ -74,6 +75,9 @@ func Setup(cfg *configs.Config, hub *ws.Hub) *echo.Echo {
 	ChatRoutes(chatGroup)
 
 	g.GET("/current-user", authhandler.GetUser)
+
+	botg := g.Group("/bot")
+	botg.POST("/send/:chat_id", bothandler.SendMessage)
 
 	tg := g.Group("/tg")
 	tg.POST("/auth", authhandler.AuthenticateTgUser)
