@@ -122,6 +122,7 @@ func createRequestQuery(
 	return nil
 }
 
+// TODO: Replace with SendTelegramMessage function inside bothandler/util.go
 func SendTelegramMessage(
 	bot *tgbotapi.BotAPI,
 	prompt *tgbotapi.Message,

@@ -22,7 +22,7 @@ func SendMessage(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	msg, err := SendTelegramMessage(int64(chatID), r.Message)
+	_, err = SendTelegramMessage(int64(chatID), nil, r.Message)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err)
 	}
