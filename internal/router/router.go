@@ -49,7 +49,8 @@ func Setup(cfg *configs.Config, hub *ws.Hub) *echo.Echo {
 		NewClaimsFunc: func(c echo.Context) jwt.Claims {
 			return new(util.JwtCustomClaims)
 		},
-		SigningKey: []byte(cfg.JwtSecret),
+		SigningKey:  []byte(cfg.JwtSecret),
+		TokenLookup: "header:Authorization:Bearer ,cookie:token",
 	}
 	g.Use(echojwt.WithConfig(config))
 
