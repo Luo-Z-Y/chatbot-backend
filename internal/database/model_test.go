@@ -65,8 +65,8 @@ func TestCreateMessage(t *testing.T) {
 			By:                model.ByStaff,
 			MessageBody:       "very cool message",
 			Timestamp:         time.Now(),
-			HotelStaffId:      &user.ID,
-			RequestQueryId:    query.ID,
+			HotelStaffID:      &user.ID,
+			RequestQueryID:    query.ID,
 		}
 		AssertNoErr(t, message.Create(db))
 
@@ -88,7 +88,7 @@ func TestCreateMessage(t *testing.T) {
 			By:                model.ByBot,
 			MessageBody:       "very cool message",
 			Timestamp:         time.Now(),
-			RequestQueryId:    query.ID,
+			RequestQueryID:    query.ID,
 		}
 		AssertNoErr(t, message.Create(db))
 		fmt.Printf("%#v\n", message)

@@ -5,3 +5,4 @@ routes.json
 **.env**.local
 
 /bin
+**/*/.DS_Store

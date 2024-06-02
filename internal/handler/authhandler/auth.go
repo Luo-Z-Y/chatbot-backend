@@ -6,6 +6,7 @@ import (
 	"backend/internal/database"
 	authparams "backend/internal/params/authparams"
 	"backend/internal/util"
+	"backend/internal/viewmodel"
 	"errors"
 	"net/http"
 	"time"
@@ -52,7 +53,7 @@ func GetUser(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, err.Error())
 	}
 
-	userView := userModel.ToView()
+	userView := viewmodel.UserViewFrom(userModel)
 	return c.JSON(http.StatusOK, api.Response{Data: userView})
 }
 

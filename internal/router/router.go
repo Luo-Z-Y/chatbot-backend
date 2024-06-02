@@ -3,6 +3,7 @@ package router
 import (
 	"backend/internal/configs"
 	"backend/internal/handler/authhandler"
+	"backend/internal/handler/bothandler"
 	"backend/internal/handler/websockethandler"
 	"backend/internal/util"
 	"backend/internal/ws"
@@ -49,7 +50,8 @@ func Setup(cfg *configs.Config, hub *ws.Hub) *echo.Echo {
 		NewClaimsFunc: func(c echo.Context) jwt.Claims {
 			return new(util.JwtCustomClaims)
 		},
-		SigningKey: []byte(cfg.JwtSecret),
+		SigningKey:  []byte(cfg.JwtSecret),
+		TokenLookup: "header:Authorization:Bearer ,cookie:token",
 	}
 	g.Use(echojwt.WithConfig(config))
 
@@ -68,8 +70,14 @@ func Setup(cfg *configs.Config, hub *ws.Hub) *echo.Echo {
 		}
 	})
 
-	// Routes needing authentication
+	// Routes needing, authentication
+	chatGroup := g.Group("/chats")
+	ChatRoutes(chatGroup)
+
 	g.GET("/current-user", authhandler.GetUser)
+
+	botg := g.Group("/bot")
+	botg.POST("/send/:chat_id", bothandler.SendMessage)
 
 	tg := g.Group("/tg")
 	tg.POST("/auth", authhandler.AuthenticateTgUser)

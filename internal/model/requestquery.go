@@ -32,7 +32,8 @@ type RequestQuery struct {
 	Booking   *Booking
 	ChatID    uint
 	Chat      Chat
-	Messages  []Message
+
+	Messages []Message `gorm:"->;<-"`
 }
 
 var ErrRequestHasNilBookingId = externalerror.AuthRequiredError{}
