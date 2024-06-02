@@ -1,6 +1,8 @@
 package bothandler
 
 import (
+	"backend/internal/dataaccess/chat"
+	"backend/internal/database"
 	"backend/internal/params/tgmessageparams"
 	"net/http"
 	"strconv"
@@ -22,7 +24,14 @@ func SendMessage(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	_, err = SendTelegramMessage(int64(chatID), nil, r.Message)
+	db := database.GetDb()
+
+	chat, err := chat.Read(db, uint(chatID))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err)
+	}
+
+	_, err = SendTelegramMessage(int64(chat.TelegramChatId), nil, r.Message)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err)
 	}
