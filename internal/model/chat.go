@@ -11,7 +11,7 @@ type Chat struct {
 	TelegramChatId int64 `gorm:"unique"`
 
 	Booking        *Booking       `gorm:"->"`
-	RequestQueries []RequestQuery `gorm:"->;<-:create"`
+	RequestQueries []RequestQuery `gorm:"->;<-"`
 }
 
 func (c *Chat) Create(db *gorm.DB) error {
